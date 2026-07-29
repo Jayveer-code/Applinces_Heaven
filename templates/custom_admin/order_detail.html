@@ -1,0 +1,149 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block page_title %}Order Detail{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <a href="{% url 'admin_orders' %}">Orders</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">#{{ order.id }}</span>
+</div>
+
+<div class="page-header">
+  <h1>Order <span style="color:var(--accent);">#{{ order.id }}</span></h1>
+  <a href="{% url 'admin_orders' %}" class="btn-ah btn-ah-outline"><i class="fas fa-arrow-left"></i> Back to Orders</a>
+</div>
+
+<div class="row g-3">
+  <!-- Order Items -->
+  <div class="col-lg-8">
+    <div class="ah-card mb-3">
+      <div class="ah-card-header">
+        <i class="fas fa-box" style="color:var(--accent);"></i>
+        <h2>Order Items</h2>
+      </div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr><th>Product</th><th>Image</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+          </thead>
+          <tbody>
+            {% for item in order_items %}
+            <tr>
+              <td><strong>{{ item.product }}</strong></td>
+              <td>
+                {% if item.image %}
+                <img src="{{ item.image.url }}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" alt="{{ item.product }}">
+                {% else %}
+                <div style="width:48px;height:48px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fas fa-image"></i></div>
+                {% endif %}
+              </td>
+              <td>₹{{ item.price }}</td>
+              <td><span style="background:#eff6ff;color:var(--accent);border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600;">× {{ item.quantity }}</span></td>
+              <td><strong>₹{{ item.total }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">No items found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:var(--text-muted);">Grand Total</div>
+          <div style="font-size:24px;font-weight:800;color:var(--accent);">₹{{ order.amount }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status History -->
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-clock-rotate-left" style="color:var(--warning);"></i>
+        <h2>Status History</h2>
+      </div>
+      <div class="ah-card-body">
+        <div style="position:relative;padding-left:28px;">
+          {% for hist in order.status_history.all|dictsortreversed:"updated_at" %}
+          <div style="position:relative;padding-bottom:18px;">
+            <div style="position:absolute;left:-20px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--accent);"></div>
+            {% if not forloop.last %}
+            <div style="position:absolute;left:-16px;top:13px;width:2px;background:var(--border);height:calc(100% - 4px);"></div>
+            {% endif %}
+            <div style="font-size:13px;font-weight:600;">{{ hist.status|title }}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);">{{ hist.updated_at }}</div>
+          </div>
+          {% empty %}
+          <p style="color:var(--text-muted);font-size:13px;">No history recorded.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div class="col-lg-4">
+    <!-- Customer Info -->
+    <div class="ah-card mb-3">
+      <div class="ah-card-header">
+        <i class="fas fa-user" style="color:var(--success);"></i>
+        <h2>Customer Info</h2>
+      </div>
+      <div class="ah-card-body">
+        <div style="display:grid;gap:10px;font-size:13.5px;">
+          <div><span style="color:var(--text-muted);">Name:</span> <strong>{{ order.firstname }} {{ order.lastname }}</strong></div>
+          <div><span style="color:var(--text-muted);">Email:</span> {{ order.email }}</div>
+          <div><span style="color:var(--text-muted);">Phone:</span> {{ order.phone }}</div>
+          <hr style="border-color:var(--border);">
+          <div><span style="color:var(--text-muted);">Address:</span> {{ order.address }}</div>
+          <div><span style="color:var(--text-muted);">City:</span> {{ order.city }}</div>
+          <div><span style="color:var(--text-muted);">State:</span> {{ order.state }}</div>
+          <div><span style="color:var(--text-muted);">Pincode:</span> {{ order.pincode }}</div>
+          <hr style="border-color:var(--border);">
+          <div><span style="color:var(--text-muted);">Payment:</span> {{ order.payment_method }}</div>
+          <div><span style="color:var(--text-muted);">Paid:</span>
+            {% if order.paid %}<span style="color:var(--success);font-weight:700;"><i class="fas fa-check-circle"></i> Yes</span>{% else %}<span style="color:var(--warning);font-weight:700;"><i class="fas fa-clock"></i> Pending</span>{% endif %}
+          </div>
+          {% if order.delivery_date %}
+          <div><span style="color:var(--text-muted);">Delivery Date:</span> {{ order.delivery_date }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Status -->
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-pen-to-square" style="color:var(--warning);"></i>
+        <h2>Update Status</h2>
+      </div>
+      <div class="ah-card-body">
+        <form method="POST" action="{% url 'admin_order_detail' order.id %}">
+          {% csrf_token %}
+          <div class="ah-form-group">
+            <label class="ah-label">Current Status</label>
+            <span class="badge-status badge-{{ order.status }}" style="font-size:13px;padding:6px 12px;">{{ order.get_status_display }}</span>
+          </div>
+          <div class="ah-form-group">
+            <label class="ah-label" for="status">New Status</label>
+            <select class="ah-select" name="status" id="status">
+              {% for val, label in STATUS_CHOICES %}
+              <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ah-form-group">
+            <label class="ah-label" for="delivery_date">Delivery Date</label>
+            <input class="ah-input" type="date" name="delivery_date" id="delivery_date" value="{{ order.delivery_date|date:'Y-m-d' }}">
+          </div>
+          <button type="submit" class="btn-ah btn-ah-primary" style="width:100%;">
+            <i class="fas fa-floppy-disk"></i> Update Order
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

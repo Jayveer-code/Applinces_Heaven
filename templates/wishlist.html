@@ -1,0 +1,240 @@
+{% include "header.html" %}
+<style>
+    .amz-wishlist-container {
+        background-color: #f4f4f4;
+        padding: 40px 0;
+        min-height: 80vh;
+        font-family: Poppins, sans-serif;
+    }
+    .amz-panel {
+        background-color: #ffffff;
+        padding: 0;
+        border-radius: 10px;
+        box-shadow: 0 1px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        border: 2px solid #e1e1e1;
+    }
+    .amz-title-wrapper {
+        padding: 20px 30px;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    .amz-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+        color: #000;
+    }
+    .amz-item {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 30px;
+        border-bottom: 1px solid #e1e1e1;
+        transition: all 0.3s ease;
+    }
+    .amz-item:hover {
+        background-color: #f9f9f9;
+    }
+    .amz-item:last-child {
+        border-bottom: none;
+    }
+    .amz-item-img-col {
+        flex: 0 0 180px;
+        margin-right: 30px;
+        text-align: center;
+    }
+    .amz-item-img-col img {
+        width: 100%;
+        max-width: 180px;
+        max-height: 180px;
+        object-fit: contain;
+    }
+    .amz-item-info-col {
+        flex: 1;
+        min-width: 200px;
+    }
+    .amz-item-title {
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: #000;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+    .amz-item-title:hover {
+        color: #266bf9;
+    }
+    .amz-item-price {
+        font-size: 24px;
+        font-weight: 600;
+        color: #266bf9;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+    }
+    .amz-item-price-symbol {
+        font-size: 14px;
+        margin-top: 2px;
+        margin-right: 2px;
+    }
+    .amz-in-stock {
+        color: #007600;
+        font-size: 14px;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    .amz-free-shipping {
+        font-size: 14px;
+        color: #565959;
+    }
+    .amz-item-action-col {
+        flex: 0 0 220px;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-end;
+    }
+    .amz-btn-add {
+        background-color: transparent;
+        border: 2px solid #266bf9;
+        border-radius: 18px;
+        color: #266bf9;
+        padding: 8px 16px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+    .amz-btn-add:hover {
+        background-color: #266bf9;
+        border-color: #266bf9;
+        color: #fff;
+    }
+    .amz-btn-remove {
+        background-color: transparent;
+        color: #eb2606;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        text-align: right;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .amz-btn-remove:hover {
+        color: #c40000;
+        text-decoration: underline;
+    }
+    .amz-empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        background: #fff;
+    }
+    .amz-empty-state img {
+        width: 250px;
+        opacity: 0.8;
+        margin-bottom: 25px;
+    }
+    .amz-empty-state h4 {
+        font-weight: 600;
+        font-size: 24px;
+        color: #000;
+    }
+    .amz-empty-state .btn-continue {
+        margin-top: 20px;
+        display: inline-block;
+        background-color: #266bf9;
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .amz-empty-state .btn-continue:hover {
+        background-color: #000;
+        color: #fff;
+    }
+    @media (max-width: 768px) {
+        .amz-item {
+            flex-direction: column;
+        }
+        .amz-item-img-col {
+            margin-bottom: 20px;
+            margin-right: 0;
+        }
+        .amz-item-action-col {
+            align-items: flex-start;
+            text-align: left;
+            margin-top: 20px;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="amz-wishlist-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="amz-panel">
+                    <div class="amz-title-wrapper">
+                        <h2 class="amz-title">Your Wishlist</h2>
+                    </div>
+                    
+                    {% if items %}
+                        <div class="amz-list">
+                            {% for item in items %}
+                            <div class="amz-item">
+                                <!-- Image Column -->
+                                <div class="amz-item-img-col">
+                                    <a href="{% url 'DetailsPage' item.product.id %}">
+                                        <img src="/media/{{item.product.image}}" alt="{{item.product.name}}">
+                                    </a>
+                                </div>
+                                
+                                <!-- Info Column -->
+                                <div class="amz-item-info-col">
+                                    <a href="{% url 'DetailsPage' item.product.id %}" class="amz-item-title">
+                                        {{ item.product.name }}
+                                    </a>
+                                    <div class="amz-item-price">
+                                        <span class="amz-item-price-symbol">₹</span>{{ item.product.price }}
+                                    </div>
+                                    <div class="amz-in-stock">In stock</div>
+                                    <div class="amz-free-shipping">
+                                        Eligible for FREE Shipping
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Column -->
+                                <div class="amz-item-action-col">
+                                    <a href="{% url 'cart_add' item.product.id %}" class="amz-btn-add">
+                                        Add to Cart
+                                    </a>
+                                    <a href="{% url 'wishlist_remove' item.product.id %}" class="amz-btn-remove" onclick="return confirm('Are you sure you want to remove this item?');">
+                                        Remove from list
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="amz-empty-state">
+                            <img src="https://m.media-amazon.com/images/G/31/cart/empty/kettle-desaturated._CB424694257_.svg" alt="Empty list">
+                            <h4>Your Wishlist is empty</h4>
+                            <a href="{% url 'HomePage' %}" class="btn-continue">Continue shopping</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}
+

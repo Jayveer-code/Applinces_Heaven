@@ -1,0 +1,374 @@
+{% include "header.html" %}
+
+<!-- Shop Page Start  -->
+<div class="shop-category-area pt-100px pb-100px">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 order-lg-last col-md-12 order-md-first">
+                <!-- Shop Top Area Start -->
+                <div class="shop-top-bar d-flex">
+                    <!-- <p class="compare-product"> <span>12</span> Product Found of <span>30</span></p> -->
+                    <!-- Left Side End -->
+                    <div class="shop-tab nav">
+                        <button class="active" data-bs-target="#shop-grid" data-bs-toggle="tab">
+                            <i class="fa fa-th" aria-hidden="true"></i>
+                        </button>
+                        <button data-bs-target="#shop-list" data-bs-toggle="tab">
+                            <i class="fa-solid fa-list" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <!-- Right Side Start -->
+                    <div class="shop-select">
+                        <form method="GET" action="{% url 'Productpage' %}" id="sort_form">
+                            {% if request.GET.categories %}
+                            <input type="hidden" name="categories" value="{{ request.GET.categories }}">
+                            {% endif %}
+                            {% if request.GET.filter_price %}
+                            <input type="hidden" name="filter_price" value="{{ request.GET.filter_price }}">
+                            {% endif %}
+                            {% if request.GET.rating %}
+                            <input type="hidden" name="rating" value="{{ request.GET.rating }}">
+                            {% endif %}
+                            <select name="sort" onchange="document.getElementById('sort_form').submit();"
+                                class="form-select"
+                                style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd;">
+                                <option value="">Sort by</option>
+                                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price Low to
+                                    High</option>
+                                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price High
+                                    to Low</option>
+                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
+                                <option value="best_selling" {% if sort_by == 'best_selling' %}selected{% endif %}>Best
+                                    Selling</option>
+                            </select>
+                        </form>
+                    </div>
+                    <!-- Right Side End -->
+                </div>
+                <!-- Shop Top Area End -->
+                <!-- Shop Bottom Area Start -->
+                <div class="shop-bottom-area">
+                    <style>
+                        .product {
+                            height: 100%;
+                            display: flex !important;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            border: 1px solid #f0f0f0;
+                            border-radius: 10px;
+                            transition: all 0.3s ease;
+                            background: #fff;
+                        }
+
+                        .product .thumb {
+                            height: 220px !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 25px !important;
+                            background: #fff !important;
+                            position: relative !important;
+                            flex-shrink: 0 !important;
+                            overflow: visible !important;
+                        }
+
+                        .product .thumb img {
+                            max-height: 170px !important;
+                            max-width: 100% !important;
+                            width: auto !important;
+                            height: auto !important;
+                            object-fit: contain !important;
+                            margin: auto !important;
+                        }
+
+                        .product .content {
+                            padding: 15px;
+                            flex-grow: 1;
+                            display: flex;
+                            flex-direction: column;
+                        }
+
+                        .product .title {
+                            font-size: 14px;
+                            font-weight: 600;
+                            margin: 8px 0;
+                            height: 42px;
+                            overflow: hidden;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            line-height: 1.5;
+                        }
+
+                        .product .price {
+                            margin-top: auto;
+                        }
+                    </style>
+                    <!-- Tab Content Area Start -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="shop-grid">
+                                    <div class="row mb-n-30px">
+                                        {% for prod in product %}
+                                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-6 mb-30px">
+                                            <!-- Single Prodect -->
+                                            <div class="product">
+                                                <span class="badges">
+                                                    {% if prod.stock == 0 %}
+                                                    <span class="new" style="background:#636e72;">Out of Stock</span>
+                                                    {% elif prod.is_offer_active %}
+                                                    <span class="new" style="background:#cc0c39;">{{ prod.discount_percentage|floatformat:0 }}% OFF</span>
+                                                    {% elif prod.is_deal_of_day %}
+                                                    <span class="new"
+                                                        style="background:linear-gradient(135deg,#ff6a00,#ee0979);">Deal</span>
+                                                    {% endif %}
+                                                </span>
+                                                <div class="thumb">
+                                                    <a href="/Details/{{prod.id}}" class="image">
+                                                        {% if prod.image %}
+                                                        <img src="/media/{{prod.image}}" alt="Product" height="100%" />
+                                                        {% elif prod.images_set.all %}
+                                                        <img src="/media/{{prod.images_set.first.image}}" alt="Product"
+                                                            height="100%" />
+                                                        {% else %}
+                                                        <div
+                                                            style="width:100%; height:200px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
+                                                            <i class="fas fa-image"
+                                                                style="font-size:40px; color:#ccc;"></i></div>
+                                                        {% endif %}
+                                                        <!-- <img class="hover-image" src="/static/assets/images/product-image/1.webp" alt="Product" /> -->
+                                                    </a>
+                                                </div>
+                                                <div class="content">
+                                                    <!-- <span class="category"><a href="#">All{{prod.categories}}</a></span> -->
+                                                    <h5 class="title"><a href="/Details/{{prod.id}}">{{prod.name|truncatewords:6}}</a></h5>
+                                                    <span class="price">
+                                                        <span class="new">₹{{prod.price}}</span>
+                                                    </span>
+                                                </div>
+                                                <div class="actions">
+                                                    <button title="Add To Cart" class="action add-to-cart"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#exampleModal-Cart-{{forloop.counter}}"><i
+                                                            class="pe-7s-shopbag"></i></button>
+
+                                                    <button class="action quickview" data-link-action="quickview"
+                                                        title="Quick view" data-bs-toggle="modal"
+                                                        data-bs-target="#exampleModal-{{forloop.counter}}"><i
+                                                            class="pe-7s-look"></i></button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        <!-- Single Prodect End  -->
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade mb-n-30px" id="shop-list">
+                                    {% for prod in product %}
+                                    <div class="shop-list-wrapper mb-30px">
+                                        <div class="row">
+                                            <div class="col-md-5 col-lg-5 col-xl-4 mb-lm-30px">
+                                                <div class="product">
+                                                    <div class="thumb">
+                                                        <a href="/Details/{{prod.id}}" class="image">
+                                                            {% if prod.image %}
+                                                            <img src="/media/{{prod.image}}" alt="Product" />
+                                                            {% elif prod.images_set.all %}
+                                                            <img src="/media/{{prod.images_set.first.image}}"
+                                                                alt="Product" />
+                                                            {% else %}
+                                                            <div
+                                                                style="width:100%; height:180px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
+                                                                <i class="fas fa-image"
+                                                                    style="font-size:40px; color:#ccc;"></i></div>
+                                                            {% endif %}
+                                                            <!-- <img class="hover-image" src="/static/assets/images/product-image/1.webp" alt="Product" /> -->
+                                                        </a>
+                                                        <span class="badges">
+                                                            {% if prod.stock == 0 %}
+                                                            <span class="new" style="background:#636e72;">Out of Stock</span>
+                                                            {% elif prod.is_offer_active %}
+                                                            <span class="new" style="background:#cc0c39;">{{ prod.discount_percentage|floatformat:0 }}% OFF</span>
+                                                            {% elif prod.is_deal_of_day %}
+                                                            <span class="new"
+                                                                style="background:linear-gradient(135deg,#ff6a00,#ee0979);">Deal</span>
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-7 col-lg-7 col-xl-8">
+                                                <div class="content-desc-wrap">
+                                                    <div class="content">
+                                                        <span class="category"><a
+                                                                href="#">{{prod.categories}}</a></span>
+                                                        <h5 class="title"><a href="/Details/{{prod.id}}">{{prod.name|truncatewords:8}}</a></h5>
+                                                        <p>{{prod.description | truncatewords:32}} </p>
+                                                    </div>
+                                                    <div class="box-inner">
+                                                        <span class="price">
+                                                            <span class="new">$38.50</span>
+                                                        </span>
+                                                        <div class="actions">
+                                                            <button title="Add To Cart" class="action add-to-cart"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#exampleModal-Cart"><i
+                                                                    class="pe-7s-shopbag"></i></button>
+
+                                                            <button class="action quickview"
+                                                                data-link-action="quickview" title="Quick view"
+                                                                data-bs-toggle="modal" data-bs-target="#exampleModal"><i
+                                                                    class="pe-7s-look"></i></button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tab Content Area End -->
+                    <!--  Pagination Area Start -->
+                    <style>
+                        .pro-pagination-style .page-link {
+                            border: 1px solid #e0e0e0;
+                            color: #333;
+                            padding: 8px 16px;
+                            border-radius: 5px;
+                            transition: all 0.3s ease;
+                            text-decoration: none;
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                        }
+
+                        .pro-pagination-style .page-link:hover {
+                            background: #2563eb;
+                            color: #fff;
+                            border-color: #2563eb;
+                        }
+
+                        .pro-pagination-style .page-link.active {
+                            background: #2563eb;
+                            color: #fff;
+                            border-color: #2563eb;
+                        }
+                    </style>
+                    <div class="pro-pagination-style text-center" data-aos="fade-up" data-aos-delay="200">
+                        <div class="pages">
+                            <ul style="display: flex; justify-content: center; list-style: none; padding: 0; gap: 8px;">
+                                {% if product.has_previous %}
+                                <li class="li"><a class="page-link"
+                                        href="?page={{ product.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i
+                                            class="fa fa-angle-left"></i></a></li>
+                                {% endif %}
+
+                                {% for i in product.paginator.page_range %}
+                                    {% if product.number == i %}
+                                        <li class="li"><a class="page-link active" href="#">{{ i }}</a></li>
+                                    {% elif i > product.number|add:'-3' and i < product.number|add:'3' %}
+                                        <li class="li"><a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                    {% if product.has_next %}
+                                    <li class="li"><a class="page-link"
+                                            href="?page={{ product.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                             <i class="fa fa-angle-right"></i></a></li>
+                                    {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <!--  Pagination Area End -->
+                </div>
+                <!-- Shop Bottom Area End -->
+            </div>
+            <!-- Sidebar Area Start -->
+            <div class="col-lg-3 order-lg-first col-md-12 order-md-last">
+                <div class="shop-sidebar-wrap">
+                    <!-- Sidebar single item -->
+                    <div class="sidebar-widget">
+                        <h4 class="sidebar-title">Top Categories</h4>
+                        <div class="sidebar-widget-category">
+                            <ul>
+                                <li><a href="{% url 'Productpage' %}" class="selected m-0 {% if not request.GET.categories %}text-primary font-weight-bold{% endif %}"> All Products</a></li>
+                                {% for cat in categories %}
+                                <li><a href="/Product/?categories={{cat.id}}{% for key,value in request.GET.items %}{% if key != 'categories' and key != 'subcategories' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.categories == cat.id|stringformat:'s' %}text-primary font-weight-bold{% endif %}"> {{ cat.name }} </a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar single item -->
+                    <div class="sidebar-widget mt-8">
+                        <h4 class="sidebar-title">Price Filter</h4>
+                        <div class="sidebar-widget-category">
+                            <ul>
+                                {% for f_price in filter_price %}
+                                <li><a href="/Product/?filter_price={{f_price.id}}{% for key,value in request.GET.items %}{% if key != 'filter_price' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.filter_price == f_price.id|stringformat:'s' %}text-primary font-weight-bold{% endif %}"> {{ f_price.Price }} </a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Discount Filter -->
+                    <div class="sidebar-widget mt-8">
+                        <h4 class="sidebar-title">Discount Filter</h4>
+                        <div class="sidebar-widget-category">
+                            <ul>
+                                <li><a href="/Product/?discount=20{% for key,value in request.GET.items %}{% if key != 'discount' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.discount == '20' %}text-primary font-weight-bold{% endif %}"> 20% OFF & Above </a></li>
+                                <li><a href="/Product/?discount=50{% for key,value in request.GET.items %}{% if key != 'discount' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.discount == '50' %}text-primary font-weight-bold{% endif %}"> 50% OFF & Above </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Availability Filter -->
+                    <div class="sidebar-widget mt-8">
+                        <h4 class="sidebar-title">Availability</h4>
+                        <div class="sidebar-widget-category">
+                            <ul>
+                                <li><a href="/Product/?stock=in{% for key,value in request.GET.items %}{% if key != 'stock' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.stock == 'in' %}text-primary font-weight-bold{% endif %}"> In Stock </a></li>
+                                <li><a href="/Product/?stock=out{% for key,value in request.GET.items %}{% if key != 'stock' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.stock == 'out' %}text-primary font-weight-bold{% endif %}"> Out of Stock </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar single item -->
+                    <div class="sidebar-widget mt-8">
+                        <h4 class="sidebar-title">Rating Filter</h4>
+                        <div class="sidebar-widget-category">
+                            <ul>
+                                <li><a href="/Product/?rating=4{% for key,value in request.GET.items %}{% if key != 'rating' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.rating == '4' %}text-primary font-weight-bold{% endif %}"> 4★ & above </a></li>
+                                <li><a href="/Product/?rating=3{% for key,value in request.GET.items %}{% if key != 'rating' and key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}"
+                                        class="selected m-0 {% if request.GET.rating == '3' %}text-primary font-weight-bold{% endif %}"> 3★ & above </a></li>
+                                <li><a href="/Product/?{% for key,value in request.GET.items %}{% if key != 'rating' and key != 'page' %}{{key}}={{value}}&{% endif %}{% endfor %}"
+                                        class="selected m-0"> All Ratings </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Shop Page End  -->
+{% include "footer.html" %}

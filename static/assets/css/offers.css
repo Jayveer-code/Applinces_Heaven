@@ -1,0 +1,455 @@
+/* ============================================================
+   offers.css  —  Discount, Deal of the Day, Coupon, Cart styles
+   Themed to match the existing Appliances Heaven design system
+   ============================================================ */
+
+/* ── 1. PRODUCT PAGE — Price Block (theme-matched) ──────────── */
+.offer-price-wrap .discount-badge {
+    display: inline-block;
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    letter-spacing: .3px;
+}
+
+/* Selling price — uses theme `.new-price` base, extended */
+.offer-price-wrap .new-price {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--theme-color, #0e7673);
+}
+
+/* MRP strikethrough — uses theme `.old-price` base, extended */
+.offer-price-wrap .old-price {
+    font-size: 15px;
+    color: #999;
+    text-decoration: line-through;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.offer-price-wrap .old-price-label {
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 400;
+}
+
+/* Savings text */
+.offer-savings-text {
+    font-size: 13px;
+    color: #2e7d32;
+    margin: 4px 0 2px;
+    font-weight: 500;
+}
+
+/* Tax note */
+.offer-tax-note {
+    font-size: 11px;
+    color: #aaa;
+    margin: 0 0 12px;
+}
+
+/* ── 2. DEAL OF THE DAY BADGE (product page) ─────────────────── */
+.deal-of-day-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(238, 9, 121, .3);
+    animation: dotd-badge-pulse 1.8s ease-in-out infinite;
+}
+.dotd-fire { font-size: 15px; }
+@keyframes dotd-badge-pulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(238, 9, 121, .3); }
+    50%       { box-shadow: 0 4px 18px rgba(238, 9, 121, .55); }
+}
+
+/* ── 3. OFFER COUNTDOWN (product page) ──────────────────────── */
+.offer-countdown-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff8e1;
+    border: 1px solid #ffd54f;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin: 12px 0;
+}
+.countdown-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e65100;
+    white-space: nowrap;
+}
+.countdown-timer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.cdt-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 38px;
+}
+.cdt-val {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.cdt-block small {
+    font-size: 9px;
+    text-transform: uppercase;
+    opacity: .85;
+    letter-spacing: .4px;
+}
+.cdt-sep {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--theme-color, #0e7673);
+}
+
+/* ── 4. HOMEPAGE — DEAL OF THE DAY SECTION ───────────────────── */
+.dotd-section {
+    background: linear-gradient(135deg, #f9f9f9 0%, #fff8e1 100%);
+    border-top: 3px solid var(--theme-color, #0e7673);
+    border-bottom: 3px solid var(--theme-color, #0e7673);
+    padding: 40px 0 50px;
+    margin-bottom: 20px;
+}
+.dotd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+.dotd-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.dotd-fire-icon {
+    font-size: 28px;
+    animation: fire-shake .8s infinite alternate;
+}
+@keyframes fire-shake {
+    from { transform: rotate(-8deg) scale(1); }
+    to   { transform: rotate(8deg)  scale(1.15); }
+}
+.dotd-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--theme-color, #0e7673);
+    margin: 0;
+    letter-spacing: -.4px;
+}
+.dotd-see-all {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--theme-color, #0e7673);
+    text-decoration: none;
+    border: 1.5px solid var(--theme-color, #0e7673);
+    padding: 6px 16px;
+    border-radius: 20px;
+    transition: all .22s;
+}
+.dotd-see-all:hover {
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+}
+
+/* Deal Grid */
+.dotd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+    gap: 18px;
+}
+
+/* Deal Card */
+.dotd-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: 16px 13px 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .25s, transform .25s, border-color .25s;
+}
+.dotd-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,.1);
+    transform: translateY(-3px);
+    border-color: var(--theme-color, #0e7673);
+}
+
+/* % OFF badge on card */
+.dotd-off-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: .3px;
+}
+
+/* Card image */
+.dotd-img-link { display: block; text-align: center; }
+.dotd-img {
+    width: 100%;
+    max-height: 155px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    transition: transform .3s;
+}
+.dotd-card:hover .dotd-img { transform: scale(1.05); }
+
+/* Card info */
+.dotd-name { font-size: 13px; color: #333; margin: 0 0 8px; line-height: 1.4; }
+.dotd-name a { color: #333; text-decoration: none; }
+.dotd-name a:hover { color: var(--theme-color, #0e7673); }
+
+/* Card price */
+.dotd-price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+.dotd-sell-price {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--theme-color, #0e7673);
+}
+.dotd-mrp {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
+.dotd-saving {
+    font-size: 12px;
+    color: #2e7d32;
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+/* Card countdown */
+.dotd-timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    padding: 5px 8px;
+    margin-bottom: 12px;
+}
+.dotd-timer-label {
+    font-size: 11px;
+    color: #e65100;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.dotd-timer { display: flex; align-items: center; gap: 3px; }
+.dt-block {
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 6px;
+    min-width: 26px;
+    text-align: center;
+}
+.dt-block b { font-weight: 800; font-size: 13px; display: block; }
+.dt-block small { font-size: 9px; opacity: .85; display: block; }
+.dt-sep {
+    color: var(--theme-color, #0e7673);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+/* Card Add to Cart button */
+.dotd-cart-btn {
+    display: block;
+    text-align: center;
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 0;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: auto;
+    letter-spacing: .3px;
+    transition: background .22s, opacity .22s;
+}
+.dotd-cart-btn:hover { opacity: .85; color: #fff; }
+
+/* ── 5. PRODUCT LISTING — Offer Badges on cards ──────────────── */
+.product .badges .offer-badge {
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+}
+.product .badges .deal-badge {
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    color: #fff;
+}
+.product .price .old {
+    font-size: 13px;
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 4px;
+}
+
+/* ── 6. CART PAGE — Discount badges & coupon ─────────────────── */
+.cart-discount-badge {
+    display: inline-block;
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.cart-orig-price {
+    font-size: 12px;
+    color: #aaa;
+    text-decoration: line-through;
+    display: block;
+}
+.cart-disc-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--theme-color, #0e7673);
+}
+
+/* Coupon Box */
+.coupon-box {
+    background: #f9f9f9;
+    border: 1.5px dashed var(--theme-color, #0e7673);
+    border-radius: 10px;
+    padding: 22px 22px;
+}
+.coupon-heading {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.coupon-form {
+    display: flex;
+    gap: 10px;
+}
+.coupon-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: border-color .2s;
+}
+.coupon-input:focus { border-color: var(--theme-color, #0e7673); }
+.coupon-apply-btn {
+    background: var(--theme-color, #0e7673);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+    white-space: nowrap;
+}
+.coupon-apply-btn:hover { opacity: .85; }
+
+/* Applied coupon display */
+.coupon-applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #2e7d32;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.coupon-remove-btn {
+    color: #c62828;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.coupon-remove-btn:hover { text-decoration: underline; }
+
+/* Coupon savings row in total */
+.coupon-saving-row { color: #2e7d32 !important; font-size: 15px; }
+.coupon-saving-amt { color: #2e7d32 !important; }
+
+/* Flash messages */
+.cart-msg {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 7px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: msg-fadein .3s ease;
+}
+.cart-msg-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #43a047;
+}
+.cart-msg-error {
+    background: #fdecea;
+    color: #c62828;
+    border-left: 4px solid #e53935;
+}
+.cart-msg-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: inherit;
+    opacity: .65;
+    line-height: 1;
+    padding: 0 0 0 12px;
+}
+.cart-msg-close:hover { opacity: 1; }
+@keyframes msg-fadein {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

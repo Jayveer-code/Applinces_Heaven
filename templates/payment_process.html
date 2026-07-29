@@ -1,0 +1,121 @@
+{% include "header.html" %}
+<style>
+    .payment-process-area {
+        padding: 80px 0;
+        background-color: #f4f7fa;
+        min-height: 70vh;
+    }
+
+    .payment-card {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .payment-icon {
+        width: 80px; height: 80px; background: #eff6ff;
+        color: #2563eb; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 32px; margin: 0 auto 25px;
+    }
+
+    .payment-header h2 {
+        font-size: 26px; font-weight: 800; color: #1e293b; margin-bottom: 10px;
+    }
+
+    .payment-header p {
+        color: #64748b; font-size: 15px; margin-bottom: 30px;
+    }
+
+    .order-summary-mini {
+        background: #f8fafc; border-radius: 12px; padding: 20px;
+        margin-bottom: 30px; border: 1px dashed #cbd5e1;
+    }
+
+    .summary-row {
+        display: flex; justify-content: space-between; margin-bottom: 10px;
+        font-size: 14px; color: #475569;
+    }
+
+    .summary-row.total {
+        margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;
+        font-weight: 800; color: #1e293b; font-size: 18px;
+    }
+
+    /* Razorpay Button Overrides */
+    .razorpay-payment-button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 16px 30px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 10px 20px rgba(37,99,235,0.2) !important;
+    }
+
+    .razorpay-payment-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 15px 25px rgba(37,99,235,0.3) !important;
+    }
+
+    .trust-badges {
+        margin-top: 25px; display: flex; justify-content: center; gap: 15px;
+        color: #94a3b8; font-size: 12px;
+    }
+    .badge-item { display: flex; align-items: center; gap: 5px; }
+</style>
+
+<div class="payment-process-area">
+    <div class="container">
+        <div class="payment-card">
+            <div class="payment-icon">🔒</div>
+            <div class="payment-header">
+                <h2>Secure Checkout</h2>
+                <p>You are one step away from completing your purchase.</p>
+            </div>
+
+            <div class="order-summary-mini">
+                <div class="summary-row">
+                    <span>Order ID:</span>
+                    <strong>#{{ order.id|default:payment.id }}</strong>
+                </div>
+                <div class="summary-row total">
+                    <span>Amount to Pay:</span>
+                    <span>₹{{ display_amount }}</span>
+                </div>
+            </div>
+
+            <form action="/success/" method="POST">
+                {% csrf_token %}
+                <script src="https://checkout.razorpay.com/v1/checkout.js" 
+                    data-key="rzp_test_PvM4GxK9MYlCUc" 
+                    data-amount="{{ payment.amount }}"
+                    data-currency="INR" 
+                    data-order_id="{{ payment.id }}" 
+                    data-buttontext="Complete Payment Now"
+                    data-name="Appliances Heaven"
+                    data-description="Order Payment"
+                    data-image="https://oibp1.000webhostapp.com/logo.PNG" 
+                    data-prefill.name="{{ request.user.first_name }}"
+                    data-prefill.email="{{ request.user.email }}" 
+                    data-theme.color="#2563eb">
+                </script>
+            </form>
+
+            <div class="trust-badges">
+                <div class="badge-item">✅ SSL Secured</div>
+                <div class="badge-item">✅ Trusted Payment</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}

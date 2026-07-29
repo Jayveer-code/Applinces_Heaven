@@ -1,0 +1,205 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Categories</span>
+</div>
+
+<div class="page-header">
+  <h1>Categories &amp; Subcategories</h1>
+</div>
+
+<div class="row g-3">
+  <!-- CATEGORIES -->
+  <div class="col-lg-6">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-layer-group" style="color:var(--accent);"></i>
+        <h2>Main Categories</h2>
+        <button class="btn-ah btn-ah-primary" style="padding:7px 14px;font-size:12.5px;" data-bs-toggle="modal" data-bs-target="#addCatModal">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr><th>#</th><th>Category Name</th><th>Products</th><th style="text-align:right;">Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:12px;">{{ cat.id }}</td>
+              <td><strong>{{ cat.name }}</strong></td>
+              <td><span style="background:#eff6ff;color:var(--accent);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;">{{ cat.product_set.count }}</span></td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button onclick="openEditCat({{ cat.id }}, '{{ cat.name|escapejs }}')" class="btn-icon btn-icon-edit" title="Edit"><i class="fas fa-pen"></i></button>
+                  <button onclick="confirmDelete('{% url 'admin_category_delete' cat.id %}','Delete category &quot;{{ cat.name }}&quot;? All its products will lose this category.')" class="btn-icon btn-icon-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">No categories yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBCATEGORIES -->
+  <div class="col-lg-6">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-sitemap" style="color:var(--purple, #7c3aed);"></i>
+        <h2>Subcategories</h2>
+        <button class="btn-ah btn-ah-primary" style="padding:7px 14px;font-size:12.5px;" data-bs-toggle="modal" data-bs-target="#addSubModal">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr><th>#</th><th>Subcategory Name</th><th style="text-align:right;">Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for sub in subcategories %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:12px;">{{ sub.id }}</td>
+              <td><strong>{{ sub.name }}</strong></td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button onclick="openEditSub({{ sub.id }}, '{{ sub.name|escapejs }}')" class="btn-icon btn-icon-edit" title="Edit"><i class="fas fa-pen"></i></button>
+                  <button onclick="confirmDelete('{% url 'admin_subcategory_delete' sub.id %}','Delete subcategory &quot;{{ sub.name }}&quot;?')" class="btn-icon btn-icon-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">No subcategories yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCatModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Add Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'admin_category_add' %}">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Category Name</label>
+            <input class="ah-input" type="text" name="name" placeholder="e.g. Kitchen Appliances" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-plus"></i> Add Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCatModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Edit Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" id="editCatForm">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Category Name</label>
+            <input class="ah-input" type="text" name="name" id="editCatName" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-floppy-disk"></i> Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Subcategory Modal -->
+<div class="modal fade" id="addSubModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Add Subcategory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'admin_subcategory_add' %}">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Subcategory Name</label>
+            <input class="ah-input" type="text" name="name" placeholder="e.g. Grinder" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-plus"></i> Add Subcategory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Subcategory Modal -->
+<div class="modal fade" id="editSubModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Edit Subcategory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" id="editSubForm">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Subcategory Name</label>
+            <input class="ah-input" type="text" name="name" id="editSubName" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-floppy-disk"></i> Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openEditCat(id, name) {
+  document.getElementById('editCatName').value = name;
+  document.getElementById('editCatForm').action = `/admin-panel/categories/${id}/edit/`;
+  new bootstrap.Modal(document.getElementById('editCatModal')).show();
+}
+function openEditSub(id, name) {
+  document.getElementById('editSubName').value = name;
+  document.getElementById('editSubForm').action = `/admin-panel/subcategories/${id}/edit/`;
+  new bootstrap.Modal(document.getElementById('editSubModal')).show();
+}
+</script>
+{% endblock %}

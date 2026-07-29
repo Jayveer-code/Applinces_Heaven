@@ -1,0 +1,203 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Reports</span>
+</div>
+
+<div class="page-header">
+  <h1>Reports &amp; Analytics</h1>
+</div>
+
+<!-- DATE FILTER -->
+<form method="GET" action="{% url 'admin_reports' %}">
+  <div class="filter-bar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-calendar" style="color:var(--text-muted);"></i>
+      <label style="font-size:13px;font-weight:600;white-space:nowrap;">From</label>
+      <input class="ah-input" type="date" name="from_date" value="{{ from_date }}" style="width:160px;">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <label style="font-size:13px;font-weight:600;white-space:nowrap;">To</label>
+      <input class="ah-input" type="date" name="to_date" value="{{ to_date }}" style="width:160px;">
+    </div>
+    <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-filter"></i> Apply Filter</button>
+    {% if from_date or to_date %}
+    <a href="{% url 'admin_reports' %}" class="btn-ah btn-ah-outline"><i class="fas fa-xmark"></i> Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon icon-blue"><i class="fas fa-receipt"></i></div>
+      <div class="stat-value">{{ total_orders }}</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon icon-green"><i class="fas fa-circle-check"></i></div>
+      <div class="stat-value">{{ delivered }}</div>
+      <div class="stat-label">Delivered</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon icon-red"><i class="fas fa-circle-xmark"></i></div>
+      <div class="stat-value">{{ cancelled }}</div>
+      <div class="stat-label">Cancelled</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon icon-orange"><i class="fas fa-indian-rupee-sign"></i></div>
+      <div class="stat-value">₹{{ total_revenue|floatformat:0 }}</div>
+      <div class="stat-label">Revenue (Paid Orders)</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="stat-card" style="background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff;">
+      <div style="font-size:28px;font-weight:800;">{{ online_orders }}</div>
+      <div style="font-size:13px;opacity:.85;margin-top:4px;"><i class="fas fa-credit-card"></i> Online / Razorpay Orders</div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="stat-card" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:#fff;">
+      <div style="font-size:28px;font-weight:800;">{{ cod_orders }}</div>
+      <div style="font-size:13px;opacity:.85;margin-top:4px;"><i class="fas fa-money-bill-wave"></i> Cash on Delivery Orders</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-7">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-chart-area" style="color:var(--accent);"></i>
+        <h2>Monthly Revenue (Last 6 Months)</h2>
+      </div>
+      <div class="ah-card-body">
+        <canvas id="monthlyRevenueChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-chart-pie" style="color:var(--warning);"></i>
+        <h2>Products by Category</h2>
+      </div>
+      <div class="ah-card-body" style="display:flex;align-items:center;justify-content:center;">
+        <canvas id="categoryChart" height="140" style="max-width:300px;"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDERS TABLE -->
+<div class="ah-card">
+  <div class="ah-card-header">
+    <i class="fas fa-table" style="color:var(--success);"></i>
+    <h2>Order Report <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ total_orders }} orders)</span></h2>
+    <a href="#" onclick="window.print()" class="btn-ah btn-ah-outline" style="padding:7px 14px;font-size:12px;"><i class="fas fa-print"></i> Print</a>
+  </div>
+  <div class="ah-table-wrap">
+    <table class="ah-table" id="reportTable">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.id }}</strong></td>
+          <td>{{ order.firstname }} {{ order.lastname }}</td>
+          <td><strong>₹{{ order.amount }}</strong></td>
+          <td>
+            {% if order.paid %}
+            <span style="background:#dcfce7;color:#166534;border-radius:6px;padding:3px 8px;font-size:12px;">Paid</span>
+            {% else %}
+            <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:3px 8px;font-size:12px;">COD</span>
+            {% endif %}
+          </td>
+          <td style="font-size:12px;">{{ order.payment_method }}</td>
+          <td><span class="badge-status badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td style="font-size:12px;color:var(--text-muted);">{{ order.orderdate }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted);">No orders for the selected period.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const monthlyLabels  = {{ monthly_labels|safe }};
+const monthlyRevenue = {{ monthly_revenue|safe }};
+const catLabels      = {{ category_labels|safe }};
+const catCounts      = {{ category_counts|safe }};
+
+// Monthly Revenue Chart
+new Chart(document.getElementById('monthlyRevenueChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: monthlyLabels,
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: monthlyRevenue,
+      backgroundColor: [
+        'rgba(37,99,235,.7)','rgba(124,58,237,.7)','rgba(34,197,94,.7)',
+        'rgba(245,158,11,.7)','rgba(6,182,212,.7)','rgba(239,68,68,.7)'
+      ],
+      borderRadius: 10,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Category Pie Chart
+const COLORS = ['#2563eb','#7c3aed','#22c55e','#f59e0b','#06b6d4','#ef4444','#84cc16','#f97316'];
+new Chart(document.getElementById('categoryChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: catLabels,
+    datasets: [{
+      data: catCounts,
+      backgroundColor: COLORS,
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 16 } } },
+    cutout: '60%',
+  }
+});
+</script>
+{% endblock %}

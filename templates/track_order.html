@@ -1,0 +1,401 @@
+{% include "header.html" %}
+
+<style>
+    .track-order-container {
+        padding: 50px 0;
+        background-color: #f4f6f9;
+        font-family: 'Poppins', sans-serif;
+        min-height: 80vh;
+    }
+    .track-order-panel {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        padding: 40px;
+        margin-bottom: 30px;
+        border: 1px solid #e1e5ee;
+    }
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px dashed #eee;
+    }
+    .order-id {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    .order-date {
+        font-size: 14px;
+        color: #7f8c8d;
+    }
+    .order-total {
+        font-size: 22px;
+        color: #266bf9; /* Theme Blue */
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Progress Bar Styles */
+    .progress-track {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        position: relative;
+        padding: 40px 0 20px;
+        width: 100%;
+    }
+    .progress-track::before {
+        content: '';
+        position: absolute;
+        top: 60px; /* Align with circles */
+        left: 5%;
+        width: 90%;
+        height: 6px;
+        background-color: #e1e5ee;
+        z-index: 1;
+        border-radius: 4px;
+    }
+    
+    /* Dynamic line filling */
+    .progress-track.step-confirmed::before { background: linear-gradient(to right, #266bf9 25%, #e1e5ee 25%); }
+    .progress-track.step-shipped::before { background: linear-gradient(to right, #266bf9 50%, #e1e5ee 50%); }
+    .progress-track.step-out_for_delivery::before { background: linear-gradient(to right, #266bf9 75%, #e1e5ee 75%); }
+    .progress-track.step-delivered::before { background-color: #266bf9; }
+
+    .step {
+        width: 20%;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+    .step-icon {
+        width: 48px;
+        height: 48px;
+        background-color: #fff;
+        border: 4px solid #e1e5ee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 18px;
+        color: #bdc3c7;
+        transition: all 0.4s ease;
+        box-shadow: 0 0 0 5px #fff;
+    }
+    .step.active .step-icon {
+        background-color: #266bf9;
+        border-color: #266bf9;
+        color: #fff;
+        box-shadow: 0 0 0 6px rgba(38, 107, 249, 0.2);
+    }
+    .step.completed .step-icon {
+        background-color: #266bf9;
+        border-color: #266bf9;
+        color: #fff;
+    }
+    .step-label {
+        font-weight: 600;
+        color: #7f8c8d;
+        font-size: 14px;
+        display: block;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    .step.active .step-label,
+    .step.completed .step-label {
+        color: #2c3e50;
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 50px 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .empty-orders i {
+        font-size: 60px;
+        color: #bdc3c7;
+        margin-bottom: 20px;
+    }
+    .empty-orders h3 {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    /* Filter Styles */
+    .order-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+    .filter-btn {
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: 2px solid #e1e5ee;
+        background-color: #fff;
+        color: #7f8c8d;
+        font-weight: 500;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .filter-btn:hover {
+        border-color: #266bf9;
+        color: #266bf9;
+    }
+    .filter-btn.active {
+        background-color: #266bf9;
+        border-color: #266bf9;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(38, 107, 249, 0.3);
+    }
+    
+    /* Advanced Tracking Styles */
+    .delivery-date {
+        font-size: 15px;
+        color: #2c3e50;
+        margin-top: 10px;
+        font-weight: 500;
+    }
+    .cancel-btn {
+        background-color: transparent;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+        padding: 6px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .cancel-btn:hover {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+    .history-timeline {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid #eee;
+    }
+    .history-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+    .history-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        position: relative;
+    }
+    .history-list::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 6px;
+        width: 2px;
+        background: #e1e5ee;
+    }
+    .history-item {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 20px;
+    }
+    .history-item:last-child {
+        margin-bottom: 0;
+    }
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #266bf9;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 1px #266bf9;
+    }
+    .history-status {
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        font-size: 15px;
+    }
+    .history-date {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .progress-track {
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 30px;
+        }
+        .progress-track::before {
+            width: 6px;
+            height: 90%;
+            left: 54px;
+            top: 20px;
+        }
+        .progress-track.step-confirmed::before { background: linear-gradient(to bottom, #266bf9 25%, #e1e5ee 25%); }
+        .progress-track.step-shipped::before { background: linear-gradient(to bottom, #266bf9 50%, #e1e5ee 50%); }
+        .progress-track.step-out_for_delivery::before { background: linear-gradient(to bottom, #266bf9 75%, #e1e5ee 75%); }
+        .progress-track.step-delivered::before { background-color: #266bf9; }
+
+        .step {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        .step-icon {
+            margin: 0 20px 0 0;
+        }
+        .step-label {
+            margin-top: 0;
+            font-size: 16px;
+        }
+    }
+</style>
+
+<div class="track-order-container">
+    <div class="container">
+        <h2 class="mb-4 text-center fw-bold" style="color: #2c3e50;">Track Your Orders</h2>
+        
+        <!-- Filter Navigation -->
+        <div class="order-filters">
+            <a href="?status=all" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">All Orders</a>
+            <a href="?status=pending" class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">Pending</a>
+            <a href="?status=confirmed" class="filter-btn {% if current_filter == 'confirmed' %}active{% endif %}">Confirmed</a>
+            <a href="?status=shipped" class="filter-btn {% if current_filter == 'shipped' %}active{% endif %}">Shipped</a>
+            <a href="?status=out_for_delivery" class="filter-btn {% if current_filter == 'out_for_delivery' %}active{% endif %}">Out for Delivery</a>
+            <a href="?status=delivered" class="filter-btn {% if current_filter == 'delivered' %}active{% endif %}">Delivered</a>
+        </div>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="track-order-panel">
+                        <div class="order-header">
+                            <div>
+                                <h4 class="order-id">Order ID: #{{ order.id }}</h4>
+                                <span class="order-date">Placed on {{ order.orderdate|date:"F j, Y" }}</span>
+                            </div>
+                            <div>
+                                <h4 class="order-total">&#8377; {{ order.amount }}</h4>
+                                {% if order.status in 'pending,confirmed' and not order.is_cancelled %}
+                                    <form method="POST" action="{% url 'order_cancel' order.id %}" class="mt-2 text-end">
+                                        {% csrf_token %}
+                                        <button type="submit" class="cancel-btn" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</button>
+                                    </form>
+                                {% elif order.is_cancelled %}
+                                    <div class="text-danger fw-bold mt-2 text-end">Cancelled</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if order.delivery_date and not order.is_cancelled %}
+                        <div class="delivery-date text-center mb-4">
+                            <i class="fas fa-calendar-check me-2 text-success"></i> Estimated Delivery: <strong>{{ order.delivery_date|date:"F j, Y" }}</strong>
+                        </div>
+                        {% endif %}
+
+                        <!-- Add a dynamic class to the track based on status to fill the line -->
+                        <div class="progress-track step-{{ order.status }}">
+                            
+                            <!-- Pending -->
+                            <div class="step {% if order.status in 'pending,confirmed,shipped,out_for_delivery,delivered' %}completed{% endif %}">
+                                <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
+                                <span class="step-label">Order Placed</span>
+                            </div>
+                            
+                            <!-- Confirmed -->
+                            <div class="step {% if order.status in 'confirmed,shipped,out_for_delivery,delivered' %}completed{% endif %}">
+                                <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                                <span class="step-label">Confirmed</span>
+                            </div>
+
+                            <!-- Shipped -->
+                            <div class="step {% if order.status in 'shipped,out_for_delivery,delivered' %}completed{% endif %}">
+                                <div class="step-icon"><i class="fas fa-box-open"></i></div>
+                                <span class="step-label">Shipped</span>
+                            </div>
+
+                            <!-- Out for Delivery -->
+                            <div class="step {% if order.status in 'out_for_delivery,delivered' %}completed{% endif %}">
+                                <div class="step-icon"><i class="fas fa-truck"></i></div>
+                                <span class="step-label">Out for Delivery</span>
+                            </div>
+
+                            <!-- Delivered -->
+                            <div class="step {% if order.status == 'delivered' %}completed{% endif %}">
+                                <div class="step-icon"><i class="fas fa-home"></i></div>
+                                <span class="step-label">Delivered</span>
+                            </div>
+                        </div>
+
+                        {% if order.is_cancelled %}
+                        <div class="alert alert-danger mt-4 mb-0 text-center fw-bold">
+                            <i class="fas fa-times-circle me-2"></i> This order has been cancelled.
+                        </div>
+                        {% elif order.status == 'delivered' %}
+                        <div class="alert alert-success mt-4 mb-0 text-center fw-bold">
+                            <i class="fas fa-check-circle me-2"></i> Your package has been delivered successfully.
+                        </div>
+                        {% else %}
+                        <div class="alert alert-primary mt-4 mb-0 text-center" style="background-color: rgba(38,107,249,0.1); border-color: #266bf9; color: #266bf9;">
+                            <i class="fas fa-info-circle me-2"></i> Your order is currently <strong>{{ order.get_status_display }}</strong>. Check back soon for updates.
+                        </div>
+                        {% endif %}
+
+                        <!-- Status History Timeline -->
+                        {% if order.status_history.exists %}
+                        <div class="history-timeline">
+                            <h5 class="history-title"><i class="fas fa-history me-2"></i> History</h5>
+                            <ul class="history-list">
+                                {% for history in order.status_history.all|dictsortreversed:"updated_at" %}
+                                <li class="history-item">
+                                    <p class="history-status">{{ history.get_status_display|default:history.status|title }}</p>
+                                    <p class="history-date">{{ history.updated_at|date:"F j, g:i a" }}</p>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="empty-orders">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No Orders Found</h3>
+                        <p class="text-muted mt-2">Looks like you haven't placed any orders yet.</p>
+                        <a href="{% url 'HomePage' %}" class="btn btn-primary mt-3" style="background-color: #266bf9; border-radius: 20px; padding: 10px 25px;">Start Shopping</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% include "footer.html" %}

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zxx" dir="ltr">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appliances Heaven – Electronics </title>
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Hmart-Smart Product eCommerce html Template"> 
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/static/assets/images/1.PNG" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/assets/css/font.awesome.css" />
+    <link rel="stylesheet" href="/static/assets/css/pe-icon-7-stroke.css" />
+    <link rel="stylesheet" href="/static/assets/css/animate.min.css">
+    <link rel="stylesheet" href="/static/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/static/assets/css/venobox.css">
+    <link rel="stylesheet" href="/static/assets/css/jquery-ui.min.css">
+     
+    <link rel="stylesheet" href="/static/assets/css/style.css"> 
+    <!-- Minify Version -->
+    <link rel="stylesheet" href="/static/assets/css/plugins.min.css">
+    <link rel="stylesheet" href="/static/assets/css/style.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
+</head>
+<style>
+    input[type="radio"] {
+        appearance: radio;
+
+    }
+</style>
+<body>
+    <div class="main-wrapper">
+        <!-- registration area start -->
+        <div class="login-register-area pt-100px pb-100px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7 col-md-12 ml-auto mr-auto">
+                        <div class="login-register-wrapper">
+                            <div style="text-align: center; margin-bottom: 15px;">
+                                <div style="display:inline-flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #1e3c72, #2a5298); padding:8px; box-shadow: 0 4px 10px rgba(30,60,114,0.2); margin-bottom: 8px;">
+                                    <img src="/static/assets/images/1.PNG" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)) brightness(0) invert(1);">
+                                </div>
+                                <div style="font-size: 20px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; font-family: 'Inter', sans-serif;">Appliances Heaven</div>
+                                <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;">Create Account</div>
+                            </div>
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form method="post" action="/regstore/">
+                                        {% csrf_token %}
+                                        <label for="fname">First Name:</label>
+                                        <input type="text" name="fname" id="fname" placeholder="First name" required />
+                                        
+                                        <label for="lname">Last Name:</label>
+                                        <input type="text" name="lname" id="lname" placeholder="Last name" required />
+                                        
+                                        <label for="username">Username:</label>
+                                        <input type="text" name="username" id="username" placeholder="Username" required />
+                                        
+                                        <div class="flex">
+                                            <div class="flex items-center me-4">
+                                                <input type="radio" name="gender" id="male" value="male" required>
+                                                <label for="inline-radio">Male</label>
+                                            </div>
+                                            <div class="flex items-center ">
+                                                <input type="radio" name="gender" id="female" value="female" required>
+                                                <label for="inline-2-radio" >Female</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <label for="contact">Mobile Number:</label>
+                                        <input type="text" name="contact" id="contact" placeholder="Mobile Number" required />
+                                        
+                                        <label for="email">Email:</label>
+                                        <input name="email" id="email" placeholder="Email" type="Email" required />
+                                        
+                                        <label for="address">Address:</label>
+                                        <textarea id="address" name="address" placeholder="Address" required></textarea>
+                                        
+                                        <label for="password">Password:</label>
+                                        <input type="password" name="password" id="password" placeholder="Password" required />
+                                        
+                                        <label for="cpassword">Confirm Password:</label>
+                                        <input type="password" id="cpassword" name="cpassword" placeholder="Confirm password" required />
+                                        
+                                        <!-- <label for="birthdate">Birth Date:</label>
+                                        <input type="date" id="birthdate" name="birthdate" required />
+                                         -->
+                                        <div class="button-box">
+                                            <button type="submit"><span>Register</span></button>
+                                        </div>
+                                        {% if messages %}
+                                        <div class="messages" style="margin-top: 15px; text-align: center; background-color: #ffe6e6; padding: 10px; border-radius: 8px;">
+                                            {% for message in messages %}
+                                            <p style="color: #dc3545; font-size: 14px; font-weight: 600; margin-bottom: 0;"><i class="fas fa-exclamation-circle"></i> {{ message }}</p>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <script>
+                                            let radioGroups = {};
+                                            document.querySelectorAll('form[action="/regstore/"] input[required], form[action="/regstore/"] textarea[required], form[action="/regstore/"] select[required]').forEach(function(el) {
+                                                
+                                                if (el.type === 'radio') {
+                                                    if (!radioGroups[el.name]) {
+                                                        let err = document.createElement('div');
+                                                        err.style.color = '#dc3545';
+                                                        err.style.fontSize = '12px';
+                                                        err.style.fontWeight = '600';
+                                                        err.style.display = 'none';
+                                                        err.style.marginTop = '8px';
+                                                        err.style.marginBottom = '15px';
+                                                        err.style.textAlign = 'left';
+                                                        err.innerText = '⚠️ Please select an option';
+                                                        
+                                                        // Find the exact outer flex container wrapper for the radio buttons
+                                                        // It matches <div class="flex"> in your layout
+                                                        let container = el.closest('.flex'); 
+                                                        if(container && container.parentElement.classList.contains('flex')==false) {
+                                                            // We found the outer flex block!
+                                                            container.parentNode.insertBefore(err, container.nextSibling);
+                                                        } else if (container && container.parentElement.classList.contains('flex')) {
+                                                            container.parentElement.parentNode.insertBefore(err, container.parentElement.nextSibling);
+                                                        } else {
+                                                            el.parentNode.insertBefore(err, el.nextSibling);
+                                                        }
+                                                        
+                                                        radioGroups[el.name] = err;
+                                                    }
+                                                    
+                                                    let err = radioGroups[el.name];
+                                                    
+                                                    el.addEventListener('invalid', function(e) {
+                                                        e.preventDefault();
+                                                        err.style.display = 'block';
+                                                    });
+                                                    el.addEventListener('change', function() {
+                                                        err.style.display = 'none';
+                                                    });
+                                                } else {
+                                                    let err = document.createElement('div');
+                                                    err.style.color = '#dc3545';
+                                                    err.style.fontSize = '12px';
+                                                    err.style.fontWeight = '600';
+                                                    err.style.display = 'none';
+                                                    err.style.marginTop = '-10px';
+                                                    err.style.marginBottom = '15px';
+                                                    err.style.textAlign = 'left';
+                                                    
+                                                    let fieldName = el.placeholder || el.name || 'this field';
+                                                    err.innerText = '⚠️ Please enter ' + fieldName;
+                                                    
+                                                    el.parentNode.insertBefore(err, el.nextSibling);
+
+                                                    el.addEventListener('invalid', function(e) {
+                                                        e.preventDefault();
+                                                        this.style.border = '2px solid #dc3545';
+                                                        err.style.display = 'block';
+                                                    });
+                                                    el.addEventListener('input', function() {
+                                                        this.style.border = '';
+                                                        err.style.display = 'none';
+                                                    });
+                                                }
+                                            });
+                                            document.querySelector('form[action="/regstore/"]').addEventListener('submit', function(e) {
+                                                let firstInvalid = this.querySelector(':invalid');
+                                                if (firstInvalid) {
+                                                    firstInvalid.focus();
+                                                }
+                                            });
+                                        </script>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- registration area end -->
+    </div>
+    <script src="/static/assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="/static/assets/js/vendor/jquery-migrate-3.3.2.min.js"></script>
+    <script src="/static/assets/js/vendor/modernizr-3.11.2.min.js"></script>
+    <script src="/static/assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="/static/assets/js/plugins/swiper-bundle.min.js"></script>
+    <script src="/static/assets/js/plugins/scrollUp.js"></script>
+    <script src="/static/assets/js/plugins/venobox.min.js"></script>
+    <script src="/static/assets/js/plugins/jquery-ui.min.js"></script>
+    <script src="/static/assets/js/plugins/mailchimp-ajax.js"></script> 
+
+    <!-- Minify Version -->
+    <script src="/static/assets/js/vendor.min.js"></script>
+    <script src="/static/assets/js/plugins.min.js"></script>
+    <script src="/static/assets/js/main.min.js"></script>
+
+  
+    <script src="/static/assets/js/main.js"></script> 
+</body>
+
+
+<!-- Mirrored from template.hasthemes.com/hmart/hmart/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 15 Sep 2021 18:03:57 GMT -->
+</html>
+    <!-- Global Vendor, plugins JS -->

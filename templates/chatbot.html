@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElectroBot – AI Shopping Assistant | Appliances Heaven</title>
+<meta name="description" content="Chat with ElectroBot, your AI-powered home appliance shopping assistant. Get recommendations, troubleshoot issues, and compare products instantly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="{% static 'assets/css/chatbot.css' %}">
+<base target="_parent">
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="chat-container">
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="bot-avatar">⚡</div>
+    <div class="bot-info">
+      <h1>ElectroBot</h1>
+      <p>AI Shopping Assistant · Appliances Heaven</p>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="clearChat()" title="Clear Chat"><i class="fas fa-rotate-left"></i></button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages">
+    <!-- Welcome -->
+    <div class="welcome-banner" id="welcomeBanner">
+      <span class="icon">⚡</span>
+      <h2>Hi! I'm ElectroBot 👋</h2>
+      <p>Your AI-powered home appliance expert.<br>
+      I can recommend products, compare prices, and troubleshoot issues!</p>
+    </div>
+
+    <!-- Quick Prompts -->
+    <div class="quick-prompts" id="quickPrompts">
+      <button class="quick-btn" onclick="sendQuick(this,'Best AC under ₹35,000')">❄️ Best AC under ₹35k</button>
+      <button class="quick-btn" onclick="sendQuick(this,'Best refrigerator under ₹20,000')">🧊 Fridge under ₹20k</button>
+      <button class="quick-btn" onclick="sendQuick(this,'Compare washing machines')">🫧 Compare Washing Machines</button>
+      <button class="quick-btn" onclick="sendQuick(this,'My fridge is not cooling. How to fix it?')">🔧 Fridge Not Cooling</button>
+      <button class="quick-btn" onclick="sendQuick(this,'Best deals and offers available today')">🏷️ Today's Offers</button>
+      <button class="quick-btn" onclick="sendQuick(this,'Show me premium TVs')">📺 Premium TVs</button>
+    </div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="input-bar">
+    <div class="input-row">
+      <textarea id="chatInput" rows="1" placeholder="Ask me anything about appliances… (e.g. best AC under 30k)"></textarea>
+      <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <div class="input-footer">⚡ Powered by Gemini AI · Connected to Appliances Heaven Inventory</div>
+  </div>
+</div>
+
+<script>
+var window_CHAT_URL  = "{% url 'electrobot_chat' %}";
+var window_CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+<script src="{% static 'assets/js/chatbot.js' %}?v=1.1"></script>
+</body>
+</html>

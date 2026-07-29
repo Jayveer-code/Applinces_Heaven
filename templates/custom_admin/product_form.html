@@ -1,0 +1,241 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}{% if is_edit %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
+{% block page_title %}{% if is_edit %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <a href="{% url 'admin_products' %}">Products</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">{% if is_edit %}Edit{% else %}Add{% endif %}</span>
+</div>
+
+<div class="page-header">
+  <h1>{% if is_edit %}Edit Product{% else %}Add New Product{% endif %}</h1>
+  <a href="{% url 'admin_products' %}" class="btn-ah btn-ah-outline"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row g-3">
+    <!-- Left: Main Fields -->
+    <div class="col-lg-8">
+      <div class="ah-card mb-3">
+        <div class="ah-card-header">
+          <i class="fas fa-info-circle" style="color:var(--accent);"></i>
+          <h2>Product Information</h2>
+        </div>
+        <div class="ah-card-body">
+          <div class="ah-form-group">
+            <label class="ah-label" for="name">Product Name <span style="color:red;">*</span></label>
+            <input class="ah-input" type="text" name="name" id="name" placeholder="e.g. Samsung 43-inch Smart TV" value="{{ product.name|default:'' }}" required>
+          </div>
+          <div class="ah-form-group">
+            <label class="ah-label" for="description">Description <span style="color:red;">*</span></label>
+            <textarea class="ah-textarea" name="description" id="description" rows="5" placeholder="Detailed product description…" required>{{ product.description|default:'' }}</textarea>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="ah-form-group">
+                <label class="ah-label" for="price">Price (₹) <span style="color:red;">*</span></label>
+                <input class="ah-input" type="number" step="0.01" min="0" name="price" id="price" placeholder="0.00" value="{{ product.price|default:'' }}" required>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="ah-form-group">
+                <label class="ah-label" for="discount_percentage">Discount (%)</label>
+                <input class="ah-input" type="number" step="0.01" min="0" max="100" name="discount_percentage" id="discount_percentage" placeholder="0" value="{{ product.discount_percentage|default:'0' }}">
+              </div>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-4">
+              <div class="ah-form-group">
+                <label class="ah-label" for="offer_expiry">Offer Expiry</label>
+                <input class="ah-input" type="datetime-local" name="offer_expiry" id="offer_expiry" value="{{ product.offer_expiry|date:'Y-m-d\TH:i' }}">
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="ah-form-group">
+                <label class="ah-label" for="stock">Stock Level <span style="color:red;">*</span></label>
+                <input class="ah-input" type="number" min="0" name="stock" id="stock" placeholder="0" value="{{ product.stock|default:'0' }}" required>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="ah-form-group">
+                <label class="ah-label" for="status">Status</label>
+                <select class="ah-select" name="status" id="status">
+                  <option value="PUBLISH" {% if product.status == 'PUBLISH' %}selected{% endif %}>Published</option>
+                  <option value="DRAFT"   {% if product.status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="ah-form-group" style="display:flex;align-items:center;gap:10px;">
+            <input class="ah-checkbox" type="checkbox" name="is_deal_of_day" id="is_deal_of_day" {% if product.is_deal_of_day %}checked{% endif %}>
+            <label for="is_deal_of_day" style="cursor:pointer;font-size:13.5px;font-weight:600;"><i class="fas fa-fire" style="color:#f59e0b;"></i> Mark as Deal of the Day</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Category + Image -->
+    <div class="col-lg-4">
+      <div class="ah-card mb-3">
+        <div class="ah-card-header">
+          <i class="fas fa-layer-group" style="color:var(--warning);"></i>
+          <h2>Category</h2>
+        </div>
+        <div class="ah-card-body">
+          <div class="ah-form-group">
+            <label class="ah-label" for="categories">Category <span style="color:red;">*</span></label>
+            <select class="ah-select" name="categories" id="categories" required>
+              <option value="">-- Select Category --</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if product.categories_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ah-form-group">
+            <label class="ah-label" for="subcategories">Subcategory</label>
+            <select class="ah-select" name="subcategories" id="subcategories">
+              <option value="">-- Select Subcategory --</option>
+              {% for sub in subcategories %}
+              <option value="{{ sub.id }}" {% if product.subcategories_id == sub.id %}selected{% endif %}>{{ sub.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ah-form-group">
+            <label class="ah-label" for="filter_price">Price Range</label>
+            <select class="ah-select" name="filter_price" id="filter_price">
+              {% for fp in filter_prices %}
+              <option value="{{ fp.id }}" {% if product.filter_price_id == fp.id %}selected{% endif %}>{{ fp.Price }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="ah-card mb-3">
+        <div class="ah-card-header">
+          <i class="fas fa-image" style="color:var(--success);"></i>
+          <h2>Product Image</h2>
+        </div>
+        <div class="ah-card-body">
+          {% if product.image %}
+          <img src="{{ product.image.url }}" alt="Current Image" style="width:100%;border-radius:10px;margin-bottom:12px;object-fit:cover;max-height:180px;">
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Current image. Upload a new one to replace.</p>
+          {% endif %}
+          <div id="dropZone" style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onclick="document.getElementById('image').click()">
+            <i class="fas fa-cloud-arrow-up" style="font-size:28px;color:var(--text-muted);margin-bottom:8px;display:block;"></i>
+            <div style="font-size:13px;color:var(--text-muted);">Click to upload main image</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">PNG, JPG, WebP up to 5MB</div>
+          </div>
+          <input type="file" name="image" id="image" accept="image/*" style="display:none;" onchange="previewImg(this)">
+          <div id="imgPreview" style="margin-top:12px;display:none;">
+            <img id="previewSrc" style="width:100%;border-radius:10px;object-fit:cover;max-height:160px;" alt="Preview">
+          </div>
+        </div>
+      </div>
+
+      <div class="ah-card">
+        <div class="ah-card-header">
+          <i class="fas fa-images" style="color:var(--info);"></i>
+          <h2>Additional Images</h2>
+        </div>
+        <div class="ah-card-body">
+          <div id="extraDropZone" style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onclick="document.getElementById('extra_images').click()">
+            <i class="fas fa-images" style="font-size:28px;color:var(--text-muted);margin-bottom:8px;display:block;"></i>
+            <div style="font-size:13px;color:var(--text-muted);">Click to upload multiple images</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Secondary product gallery</div>
+          </div>
+          <input type="file" name="extra_images" id="extra_images" accept="image/*" multiple style="display:none;" onchange="previewExtraImg(this)">
+          
+          <div id="extraPreviewContainer" class="row gx-2 gy-2 mt-3" style="display:none;"></div>
+          
+          {% if is_edit and product.images_set.all %}
+          <div class="mt-4">
+            <h4 style="font-size:13px;margin-bottom:10px;">Already Uploaded:</h4>
+            <div class="d-flex flex-wrap gap-2">
+              {% for img in product.images_set.all %}
+              <div style="position:relative;width:60px;height:60px;">
+                <img src="{{ img.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">
+              </div>
+              {% endfor %}
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+               To manage/delete these, go to the <a href="{% url 'admin_product_images' product.id %}" style="color:var(--accent);">Images Management</a> page.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:20px;">
+    <button type="submit" class="btn-ah btn-ah-primary" style="min-width:160px;">
+      <i class="fas fa-{% if is_edit %}floppy-disk{% else %}plus{% endif %}"></i>
+      {% if is_edit %}Save Changes{% else %}Add Product{% endif %}
+    </button>
+    <a href="{% url 'admin_products' %}" class="btn-ah btn-ah-outline">Cancel</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('previewSrc').src = e.target.result;
+      document.getElementById('imgPreview').style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='var(--accent)'; dz.style.background='rgba(37,99,235,.04)'; });
+dz.addEventListener('dragleave', () => { dz.style.borderColor='var(--border)'; dz.style.background=''; });
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.style.borderColor='var(--border)'; dz.style.background='';
+  const files = e.dataTransfer.files;
+  if (files.length) { document.getElementById('image').files = files; previewImg(document.getElementById('image')); }
+});
+
+function previewExtraImg(input) {
+  const container = document.getElementById('extraPreviewContainer');
+  container.innerHTML = '';
+  if (input.files && input.files.length > 0) {
+    container.style.display = 'flex';
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div');
+        div.className = 'col-3';
+        div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">`;
+        container.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+const exdz = document.getElementById('extraDropZone');
+exdz.addEventListener('dragover', e => { e.preventDefault(); exdz.style.borderColor='var(--accent)'; exdz.style.background='rgba(37,99,235,.04)'; });
+exdz.addEventListener('dragleave', () => { exdz.style.borderColor='var(--border)'; exdz.style.background=''; });
+exdz.addEventListener('drop', e => {
+  e.preventDefault();
+  exdz.style.borderColor='var(--border)'; exdz.style.background='';
+  const files = e.dataTransfer.files;
+  if (files.length) { 
+    document.getElementById('extra_images').files = files; 
+    previewExtraImg(document.getElementById('extra_images')); 
+  }
+});
+</script>
+{% endblock %}

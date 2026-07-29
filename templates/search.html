@@ -1,0 +1,133 @@
+{% include "header.html" %}
+
+
+<div class="container">
+    <br>
+    <h2>Search Results :</h2>
+     {% if product|length < 1 %}
+     <p>Product not Found</p>
+
+     {% endif %}
+</div>
+
+<div class="shop-category-area pt-100px pb-100px">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Shop Top Area Start -->
+                <!-- Shop Top Area End -->
+                <!-- Shop Bottom Area Start -->
+                <div class="shop-bottom-area">
+                    <style>
+                        .product {
+                            height: 100%;
+                            display: flex !important;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            border: 1px solid #f0f0f0;
+                            border-radius: 10px;
+                            transition: all 0.3s ease;
+                            background: #fff;
+                        }
+                        .product .thumb {
+                            height: 220px !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 25px !important;
+                            background: #fff !important;
+                            position: relative !important;
+                            flex-shrink: 0 !important;
+                            overflow: visible !important;
+                        }
+                        .product .thumb img {
+                            max-height: 170px !important;
+                            max-width: 100% !important;
+                            width: auto !important;
+                            height: auto !important;
+                            object-fit: contain !important;
+                            margin: auto !important;
+                        }
+                        .product .content {
+                            padding: 15px;
+                            flex-grow: 1;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .product .title {
+                            font-size: 14px;
+                            font-weight: 600;
+                            margin: 8px 0;
+                            height: 42px;
+                            overflow: hidden;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            line-height: 1.5;
+                        }
+                        .product .price {
+                            margin-top: auto;
+                        }
+                    </style>
+                    <!-- Tab Content Area Start -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="shop-grid">
+                                    <div class="row mb-n-30px">
+                                        {% for i in product %}
+                                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs-6 mb-30px">
+                                            <!-- Single Product -->
+                                            <div class="product">
+                                                <span class="badges">
+                                                    {% if i.stock == 0 %}
+                                                    <span class="new" style="background:#636e72;">Out of Stock</span>
+                                                    {% elif i.is_offer_active %}
+                                                    <span class="new offer-badge">{{ i.discount_percentage|floatformat:0 }}% OFF</span>
+                                                    {% elif i.is_deal_of_day %}
+                                                    <span class="new deal-badge">Deal</span>
+                                                    {% endif %}
+                                                </span>
+                                                <div class="thumb">
+                                                    <a href="/Details/{{ i.id }}" class="image">
+                                                        {% if i.image %}
+                                                        <img src="/media/{{ i.image }}" alt="{{ i.name }}" />
+                                                        {% elif i.images_set.all %}
+                                                        <img src="/media/{{ i.images_set.first.image }}" alt="{{ i.name }}" />
+                                                        {% else %}
+                                                        <div style="width:100%; height:200px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;"><i class="fas fa-image" style="font-size:40px; color:#ccc;"></i></div>
+                                                        {% endif %}
+                                                    </a>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="category"><a href="/Details/{{ i.id }}">{{ i.categories }}</a></span>
+                                                    <h5 class="title"><a href="/Details/{{ i.id }}">{{ i.name|truncatewords:6 }}</a></h5>
+                                                    <span class="price">
+                                                        {% if i.is_offer_active %}
+                                                        <span class="old"><del>₹{{ i.price }}</del></span>
+                                                        <span class="new">₹{{ i.get_discounted_price }}</span>
+                                                        {% else %}
+                                                        <span class="new">₹{{ i.price }}</span>
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                                <div class="actions">
+                                                    <a href="{% url 'cart_add' i.id %}" title="Add To Cart" class="action add-to-cart"><i class="pe-7s-shopbag"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tab Content Area End -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}

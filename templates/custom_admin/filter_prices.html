@@ -1,0 +1,153 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Filter Price Ranges{% endblock %}
+{% block page_title %}Filter Price Ranges{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Filter Prices</span>
+</div>
+
+<div class="page-header">
+  <h1>Price Filter Ranges</h1>
+  <button class="btn-ah btn-ah-primary" data-bs-toggle="modal" data-bs-target="#addPriceModal">
+    <i class="fas fa-plus"></i> Add Range
+  </button>
+</div>
+
+<div class="row">
+  <div class="col-lg-7">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-filter" style="color:var(--accent);"></i>
+        <h2>All Price Ranges <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ prices|length }})</span></h2>
+      </div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Price Range</th>
+              <th>Products Using</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fp in prices %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:12px;">{{ fp.id }}</td>
+              <td>
+                <span style="background:#eff6ff;color:var(--accent);border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600;">
+                  ₹{{ fp.Price }}
+                </span>
+              </td>
+              <td>
+                <span style="background:#f0fdf4;color:var(--success);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;">
+                  {{ fp.product_set.count }} products
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button onclick="openEditPrice({{ fp.id }}, '{{ fp.Price|escapejs }}')"
+                    class="btn-icon btn-icon-edit" title="Edit"><i class="fas fa-pen"></i></button>
+                  <button onclick="confirmDelete('{% url 'admin_filter_price_delete' fp.id %}','Delete price range &quot;{{ fp.Price }}&quot;?')"
+                    class="btn-icon btn-icon-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">No price ranges found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-circle-info" style="color:var(--warning);"></i>
+        <h2>About Price Filters</h2>
+      </div>
+      <div class="ah-card-body">
+        <p style="font-size:13.5px;color:var(--text-muted);line-height:1.7;">
+          Price filter ranges are shown on the <strong>Shop page sidebar</strong> to let customers filter products by budget.
+          Each product is assigned to one price range. The choices below are used as a dropdown in the product form.
+        </p>
+        <div style="margin-top:16px;background:#eff6ff;border-radius:10px;padding:14px;font-size:13px;">
+          <strong>Example formats:</strong>
+          <ul style="margin-top:8px;padding-left:18px;line-height:2;">
+            <li>1000 to 10000</li>
+            <li>10000 to 20000</li>
+            <li>More than 50000</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addPriceModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Add Price Range</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'admin_filter_price_add' %}">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Price Range Label</label>
+            <input class="ah-input" type="text" name="price" placeholder="e.g. 1000 to 10000" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editPriceModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <h5 class="modal-title fw-bold">Edit Price Range</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" id="editPriceForm">
+        {% csrf_token %}
+        <div class="modal-body" style="padding:24px;">
+          <div class="ah-form-group">
+            <label class="ah-label">Price Range Label</label>
+            <input class="ah-input" type="text" name="price" id="editPriceVal" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border);">
+          <button type="button" class="btn-ah btn-ah-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-floppy-disk"></i> Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openEditPrice(id, val) {
+  document.getElementById('editPriceVal').value = val;
+  document.getElementById('editPriceForm').action = `/admin-panel/filter-prices/${id}/edit/`;
+  new bootstrap.Modal(document.getElementById('editPriceModal')).show();
+}
+</script>
+{% endblock %}

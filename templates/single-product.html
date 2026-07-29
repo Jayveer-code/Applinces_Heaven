@@ -1,0 +1,378 @@
+{% include "header.html" %}
+        <!-- breadcrumb-area start -->
+
+        <!-- breadcrumb-area end -->
+        <!-- Product Details Area Start -->
+        <div class="product-details-area pt-100px pb-100px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12 col-xs-12 mb-lm-30px mb-md-30px mb-sm-30px">
+                        <!-- Swiper -->
+                        <div class="swiper-container zoom-top">
+                                <div class="swiper-wrapper">
+                                    {% if prod.image %}
+                                    <div class="swiper-slide">
+                                        <img class="img-responsive m-auto" src="/media/{{prod.image}}" alt="">
+                                        <a class="venobox full-preview" data-gall="myGallery" href="/media/{{prod.image}}">
+                                            <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                    {% for i in prod.images_set.all %}
+                                    {% if i.image != prod.image %}
+                                    <div class="swiper-slide">
+                                    <img class="img-responsive m-auto" src="/media/{{i.image}}" alt="">
+                                    <a class="venobox full-preview" data-gall="myGallery" href="/media/{{i.image}}">
+                                        
+                                        <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+                                    </a>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        <div class="swiper-container mt-20px zoom-thumbs slider-nav-style-1 small-nav">
+                            <div class="swiper-wrapper">
+                                {% if prod.image %}
+                                <div class="swiper-slide">
+                                    <img class="img-responsive m-auto" src="/media/{{prod.image}}" alt="">
+                                </div>
+                                {% endif %}
+                                {% for i in prod.images_set.all %}
+                                {% if i.image != prod.image %}
+                                <div class="swiper-slide">
+                                    <img class="img-responsive m-auto" src="/media/{{i.image}}" alt="">
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            <!-- Add Arrows -->
+                            <div class="swiper-buttons">
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 col-xs-12" data-aos="fade-up" data-aos-delay="200">
+                        <div class="product-details-content quickview-content ml-25px">
+                            <h2>{{prod.name | truncatewords:15}}</h2>
+
+                            <!-- Price & Offer Block -->
+                            {% if prod.is_deal_of_day %}
+                            <div class="deal-of-day-badge">
+                                <span class="dotd-fire">🔥</span>
+                                <span>Deal of the Day</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="pricing-meta offer-price-wrap">
+                                {% if prod.is_offer_active %}
+
+                                <!-- % OFF Badge -->
+                                <span class="discount-badge">{{ prod.discount_percentage|floatformat:0 }}% OFF</span>
+
+                                <!-- Selling Price -->
+                                <ul class="d-flex align-items-center" style="gap:10px; flex-wrap:wrap; margin:6px 0 2px;">
+                                    <li class="new-price">₹{{ prod.get_discounted_price }}</li>
+                                    <li class="old-price">
+                                        <span class="old-price-label">M.R.P.</span>
+                                        <del>₹{{ prod.price }}</del>
+                                    </li>
+                                </ul>
+
+                                <p class="offer-savings-text">
+                                    You save: ₹{{ prod.get_savings }} ({{ prod.discount_percentage|floatformat:0 }}%)
+                                </p>
+                                <p class="offer-tax-note">Inclusive of all taxes</p>
+
+                                {% else %}
+                                <!-- Plain price — no offer -->
+                                <ul class="d-flex">
+                                    <li class="new-price">₹{{ prod.price }}</li>
+                                </ul>
+                                <p class="offer-tax-note">Inclusive of all taxes</p>
+                                {% endif %}
+                            </div>
+
+                            {% if prod.offer_expiry and prod.is_offer_active %}
+                            <div class="offer-countdown-wrap" id="countdown-wrap-{{ prod.id }}">
+                                <span class="countdown-label">⏰ Offer ends in:</span>
+                                <div class="countdown-timer" id="countdown-{{ prod.id }}"
+                                     data-expiry="{{ prod.offer_expiry|date:'c' }}">
+                                    <span class="cdt-block"><span class="cdt-val" id="cd-h-{{ prod.id }}">00</span><small>Hrs</small></span>
+                                    <span class="cdt-sep">:</span>
+                                    <span class="cdt-block"><span class="cdt-val" id="cd-m-{{ prod.id }}">00</span><small>Mins</small></span>
+                                    <span class="cdt-sep">:</span>
+                                    <span class="cdt-block"><span class="cdt-val" id="cd-s-{{ prod.id }}">00</span><small>Secs</small></span>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="pro-details-rating-wrap">
+                                <div class="rating-product">
+                                    {% for _ in "12345"|slice:":5" %}
+                                        {% if forloop.counter <= avg_rating_int %}
+                                            <i class="fa fa-star" style="color:#ffa41c;"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o" style="color:#ccc;"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="read-review">
+                                    <a class="reviews" href="#reviews-section">
+                                        ({{ reviews_count }} Customer Review{% if reviews_count != 1 %}s{% endif %}, Avg: {{ avg_rating|floatformat:1 }} ⭐)
+                                    </a>
+                                </span>
+                            </div>
+                            <p class="mt-30px">{{prod.description| truncatewords:32}}</p>
+                            <div class="pro-details-categories-info pro-details-same-style d-flex m-0">
+                                <span>Category :</span>
+                                <ul class="d-flex">
+                                    <li>
+                                        <a href="#">{{prod.categories | truncatewords:4 }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="pro-details-categories-info pro-details-same-style d-flex m-0">
+                                <span>Sub Category: </span>
+                                <ul class="d-flex">
+                                    <li>
+                                        <a href="#">{{prod.subcategories | truncatewords:4 }} </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="pro-details-quality">
+                                <div class="pro-details-cart" style="display:flex; gap:10px; align-items:center;">
+                                    <a href="{% url 'cart_add' prod.id %}" class="add-cart">Add To Cart</a>
+                                    {% if user.is_authenticated %}
+                                        {% if in_wishlist %}
+                                            <span style="color:#e63946; font-size:20px;">❤️ In Wishlist</span>
+                                        {% else %}
+                                            <a href="{% url 'wishlist_add' prod.id %}" class="add-cart">
+                                                ❤️ Add to Wishlist
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- product details description area start -->
+                        <div class="description-review-wrapper">
+                            <div class="description-review-topbar nav">
+                                <button class="active" data-bs-toggle="tab" data-bs-target="#des-details1">Description</button>
+                                <button data-bs-toggle="tab" data-bs-target="#des-details2">Reviews ({{ reviews_count }})</button>
+                            </div>
+                            <div class="tab-content description-review-bottom" id="reviews-section">
+                                <div id="des-details1" class="tab-pane active">
+                                    <div class="product-description-wrapper">
+                                        <p>
+                                            {{prod.description}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div id="des-details2" class="tab-pane">
+                                    <div class="product-description-wrapper">
+                                        {% if user.is_authenticated %}
+                                        <h3>Add Review</h3>
+                                        <form method="POST" action="{% url 'add_review' prod.id %}" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <label>Rating</label>
+                                            <div id="starRating" class="rating-input" style="font-size:22px; display:inline-flex; gap:4px; margin-left:10px; cursor:pointer;">
+                                                <i class="fa fa-star-o star-icon" data-value="1" style="color:#ddd;"></i>
+                                                <i class="fa fa-star-o star-icon" data-value="2" style="color:#ddd;"></i>
+                                                <i class="fa fa-star-o star-icon" data-value="3" style="color:#ddd;"></i>
+                                                <i class="fa fa-star-o star-icon" data-value="4" style="color:#ddd;"></i>
+                                                <i class="fa fa-star-o star-icon" data-value="5" style="color:#ddd;"></i>
+                                            </div>
+                                            <input type="hidden" name="rating" id="ratingValue">
+                                            <br><br>
+                                            <textarea name="comment" class="form-control" rows="3" placeholder="Write your review" style="border-radius: 0; margin-top: 10px;"></textarea>
+                                            <br>
+                                            <label style="margin-top:5px;">Add Image (optional)</label>
+                                            <input type="file" name="image" accept="image/*" class="form-control" style="border-radius:0; max-width:300px;">
+                                            <br>
+                                            <button type="submit" class="btn btn-primary" style="display:inline-block; background:#0066ff; color:#fff; border-radius:0; padding:8px 15px;margin:10px 0;border:none;">
+                                                Submit Review
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <p>Please <a href="/Login/">login</a> to write a review.</p>
+                                        {% endif %}
+
+                                        <hr>
+                                        <h3>Customer Reviews</h3>
+                                        {% if reviews %}
+                                            {% for review in reviews %}
+                                            <div style="padding:12px 0; border-bottom:1px solid #eee;">
+                                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                                                    <div style="width:36px; height:36px; border-radius:50%; background:#f3f3f3; display:flex; align-items:center; justify-content:center; font-weight:600; text-transform:uppercase;">
+                                                        {{ review.user.username|first }}
+                                                    </div>
+                                                    <div>
+                                                        <strong>{{review.user.username}}</strong><br>
+                                                        <span>
+                                                            {% for _ in "12345"|slice:":5" %}
+                                                                {% if forloop.counter <= review.rating %}
+                                                                    <i class="fa fa-star" style="color:#ffa41c; font-size:14px;"></i>
+                                                                {% else %}
+                                                                    <i class="fa fa-star-o" style="color:#ccc; font-size:14px;"></i>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </span>
+                                                        <small style="display:block; color:#888; font-size:11px;">
+                                                            {{review.created_at|date:"d M Y, H:i"}}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <p style="margin:0 0 6px 0; color:#444;">{{review.comment}}</p>
+                                                {% if review.image %}
+                                                <div style="margin-top:4px;">
+                                                    <img src="/media/{{review.image}}" alt="review image" style="max-width:120px; border-radius:4px; border:1px solid #eee;">
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>No reviews yet. Be the first to review this product.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- product details description area end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Product Area Start -->
+        <div class="product-area related-product">
+            <div class="container">
+                <!-- Section Title & Tab Start -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title text-center m-0">
+                            <h2 class="title">Related Products</h2>
+                        </div>
+                    </div>
+                </div>
+                <!-- Section Title & Tab End -->
+                <div class="row">
+                    <div class="col">
+                        <div class="tab-content mt-60px">
+                            <!-- 1st tab start -->
+                            <div class="tab-pane fade show active" id="newarrivals">
+                                <div class="row mb-n-30px">
+
+                                    {% for prod in related %}
+                                    <div class="col-lg-4 col-xl-3 col-md-6 col-sm-6 col-xs-6 mb-30px">
+                                        <!-- Single Prodect -->
+                                        <div class="product">
+                                            <span class="badges">
+                                                <span class="new">New</span>
+                                            </span>
+                                            <div class="thumb">
+                                                <a href="/Details/{{prod.id}}" class="image">
+                                                    <img src="/media/{{prod.image}}" alt="Product" />
+                                                    <!-- <img class="hover-image" src="/static/assets/images/product-image/1.webp" alt="Product" /> -->
+                                                </a>
+                                            </div>
+                                            <div class="content">
+                                                <span class="category"><a href="/Details/{{prod.id}}">{{prod.categories}}</a></span>
+                                                <h5 class="title"><a href="/Details/{{prod.id}}">{{prod.name | truncatewords:4}}
+                                                    </a>
+                                                </h5>
+                                                <span class="price">
+                                                    <span class="new">₹{{prod.price}}</span>
+                                                </span>
+                                            </div>
+                                            <div class="actions">
+                                                <button title="Add To Cart" class="action add-to-cart" data-bs-toggle="modal" data-bs-target="#exampleModal-Cart-{{forloop.counter}}"><i
+                                                    class="pe-7s-shopbag"></i></button>
+                                                
+                                                <button class="action quickview" data-link-action="quickview" title="Quick view" data-bs-toggle="modal" data-bs-target="#exampleModal-{{forloop.counter}}"><i class="pe-7s-look"></i></button>
+                                            </div>
+                                     </div>
+                                  </div> 
+                                  {% endfor %}
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+            </div>
+        </div>
+        <!-- Product Area End -->
+
+        
+        <script>
+            // ── Star rating interaction ──────────────────────────────────────
+            document.addEventListener('DOMContentLoaded', function () {
+                var stars = document.querySelectorAll('#starRating .star-icon');
+                var ratingInput = document.getElementById('ratingValue');
+                if (!stars.length || !ratingInput) return;
+
+                function paintStars(val) {
+                    stars.forEach(function (s) {
+                        var starVal = parseInt(s.getAttribute('data-value'));
+                        s.style.color = starVal <= val ? '#ffa41c' : '#ddd';
+                        s.className = starVal <= val ? 'fa fa-star star-icon' : 'fa fa-star-o star-icon';
+                    });
+                }
+
+                stars.forEach(function (star) {
+                    star.addEventListener('mouseenter', function () {
+                        paintStars(parseInt(this.getAttribute('data-value')));
+                    });
+                    star.addEventListener('click', function () {
+                        var val = parseInt(this.getAttribute('data-value'));
+                        ratingInput.value = val;
+                        paintStars(val);
+                    });
+                });
+
+                var container = document.getElementById('starRating');
+                container.addEventListener('mouseleave', function () {
+                    paintStars(parseInt(ratingInput.value || '0'));
+                });
+            });
+
+            // ── Offer Countdown Timer ───────────────────────────────────
+            document.querySelectorAll('.countdown-timer').forEach(function(el) {
+                var productId = el.id.replace('countdown-', '');
+                var expiryStr = el.getAttribute('data-expiry');
+                if (!expiryStr) return;
+
+                var expiry = new Date(expiryStr);
+                var wrap  = document.getElementById('countdown-wrap-' + productId);
+
+                function tick() {
+                    var now  = new Date();
+                    var diff = Math.floor((expiry - now) / 1000);
+
+                    if (diff <= 0) {
+                        if (wrap) wrap.innerHTML = '<span style="color:#e63946; font-weight:600;">⚠️ Offer has expired!</span>';
+                        return;
+                    }
+
+                    var h = Math.floor(diff / 3600);
+                    var m = Math.floor((diff % 3600) / 60);
+                    var s = diff % 60;
+
+                    var pad = function(n){ return String(n).padStart(2,'0'); };
+
+                    var hEl = document.getElementById('cd-h-' + productId);
+                    var mEl = document.getElementById('cd-m-' + productId);
+                    var sEl = document.getElementById('cd-s-' + productId);
+
+                    if (hEl) hEl.textContent = pad(h);
+                    if (mEl) mEl.textContent = pad(m);
+                    if (sEl) sEl.textContent = pad(s);
+
+                    setTimeout(tick, 1000);
+                }
+                tick();
+            });
+        </script>
+
+        {% include "footer.html" %}

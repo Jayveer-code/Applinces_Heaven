@@ -1,0 +1,260 @@
+
+{% load cart_tag %}
+{% include "header.html" %}
+
+<!-- Cart Area Start -->
+<div class="cart-main-area pt-100px pb-100px">
+    <div class="container">
+        <h3 class="cart-page-title">Your Cart Items</h3>
+
+        {% if messages %}
+        <div style="margin-bottom:18px;">
+            {% for message in messages %}
+            <div class="cart-msg {% if message.tags == 'error' %}cart-msg-error{% else %}cart-msg-success{% endif %}">
+                {{ message }}
+                <button onclick="this.parentElement.remove()" class="cart-msg-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                <form action="#">
+                    <div class="table-content table-responsive cart-table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product Name</th>
+                                    <th>Unit Price</th>
+                                    <th>Qty</th>
+                                    <th>Subtotal</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in enriched_cart %}
+                                <tr>
+                                    <td class="product-thumbnail">
+                                        <a href="/Details/{{ item.product_id }}">
+                                            <img class="img-responsive ml-15px" src="{{ item.image }}" alt="{{ item.name }}" />
+                                        </a>
+                                    </td>
+                                    <td class="product-name">
+                                        <a href="/Details/{{ item.product_id }}">{{ item.name|truncatewords:5 }}</a>
+                                        {% if item.discount_pct and item.discount_pct > 0 %}
+                                        <span class="cart-discount-badge">{{ item.discount_pct|floatformat:0 }}% OFF</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="product-price-cart">
+                                        {% if item.discount_pct and item.discount_pct > 0 %}
+                                        <span class="cart-orig-price"><del>₹{{ item.original_price }}</del></span><br>
+                                        <span class="cart-disc-price">₹{{ item.unit_price }}</span>
+                                        {% else %}
+                                        <span class="amount">₹{{ item.unit_price }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cart_quantity">
+                                        <div class="cart_quantity_button">
+                                            <a class="cart_quantity_up" href="{% url 'item_increment' item.product_id %}"> + </a>
+                                            <input class="cart-plus-minus-box" type="text" name="qtybutton"
+                                                   value="{{ item.quantity }}" min="1" style="text-align:center;" />
+                                            {% if item.quantity > 1 %}
+                                            <a href="{% url 'item_decrement' item.product_id %}" class="cart_quantity_up">-</a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="product-subtotal">₹{{ item.subtotal }}</td>
+                                    <td class="product-remove">
+                                        <a href="{% url 'item_clear' item.key %}"><i class="fa fa-times"></i></a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding:40px; color:#888;">
+                                        Your cart is empty. <a href="{% url 'Productpage' %}">Continue Shopping</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="cart-shiping-update-wrapper">
+                                <div class="cart-shiping-update">
+                                    <a href="{% url 'HomePage' %}">Continue Shopping</a>
+                                </div>
+                                <div class="cart-clear">
+                                    <a href="{% url 'cart_clear' %}">Clear Shopping Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row mt-4">
+                    <!-- Coupon Box -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="coupon-box">
+                            <h5 class="coupon-heading"><span>🏷️</span> Apply Coupon</h5>
+                            {% if coupon_code %}
+                            <div class="coupon-applied">
+                                <span>✅ Coupon <strong>{{ coupon_code }}</strong> applied — You save ₹{{ coupon_discount }}</span>
+                                <a href="{% url 'remove_coupon' %}" class="coupon-remove-btn">Remove</a>
+                            </div>
+                            {% else %}
+                            <form method="post" action="{% url 'apply_coupon' %}" class="coupon-form">
+                                {% csrf_token %}
+                                <input type="text" name="coupon_code" id="coupon_code"
+                                       placeholder="Enter coupon code" class="coupon-input" />
+                                <button type="submit" class="coupon-apply-btn">Apply</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Cart Total -->
+                    <div class="col-lg-6 col-md-12">
+                        <div class="grand-totall">
+                            <div class="title-wrap">
+                                <h4 class="cart-bottom-title section-bg-gary-cart">Cart Summary</h4>
+                            </div>
+                            <h5>Products Subtotal <span>₹{{ cart_subtotal }}</span></h5>
+                            {% if coupon_discount and coupon_discount > 0 %}
+                            <h5 class="coupon-saving-row">
+                                Coupon Savings ({{ coupon_code }})
+                                <span class="coupon-saving-amt">- ₹{{ coupon_discount }}</span>
+                            </h5>
+                            {% endif %}
+                            <div class="total-shipping">
+                                <h5>Charges</h5>
+                                <ul>
+                                    <li><input type="checkbox" checked disabled style="accent-color:#43a047;" /> GST (18%) <span>₹{{ gst_amount|floatformat:2 }}</span></li>
+                                    <li><input type="checkbox" checked disabled style="accent-color:#43a047;" /> Delivery <span>₹{{ delivery_charge|floatformat:2 }}</span></li>
+                                </ul>
+                            </div>
+                            <h4 class="grand-totall-title">Grand Total <span>₹{{ final_total|floatformat:2 }}</span></h4>
+                            <a href="{% url 'ChekoutPage' %}">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Cart Area End -->
+
+<style>
+    /* ── Cart Discount / Offer Styles ───────────────────────────────────────── */
+    .cart-discount-badge {
+        display: inline-block;
+        background: #cc0c39;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 3px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+    .cart-orig-price {
+        font-size: 12px;
+        color: #999;
+        text-decoration: line-through;
+    }
+    .cart-disc-price {
+        font-size: 15px;
+        font-weight: 700;
+        color: #B12704;
+    }
+
+    /* ── Coupon Box ─────────────────────────────────────────────────────────── */
+    .coupon-box {
+        background: #fffde7;
+        border: 1.5px dashed #ffa000;
+        border-radius: 10px;
+        padding: 22px 24px;
+    }
+    .coupon-heading {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: #333;
+    }
+    .coupon-form {
+        display: flex;
+        gap: 10px;
+    }
+    .coupon-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1.5px solid #ffa000;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color .2s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .coupon-input:focus { border-color: #e65100; }
+    .coupon-apply-btn {
+        background: linear-gradient(135deg, #e65100, #bf360c);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 22px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity .2s;
+    }
+    .coupon-apply-btn:hover { opacity: .88; }
+    .coupon-applied {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #e8f5e9;
+        border: 1px solid #66bb6a;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #2e7d32;
+    }
+    .coupon-remove-btn {
+        color: #e63946;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        margin-left: 14px;
+        cursor: pointer;
+    }
+    .coupon-remove-btn:hover { text-decoration: underline; }
+
+    /* ── Coupon savings row in total ────────────────────────────────────────── */
+    .coupon-saving-row { color: #2e7d32 !important; }
+    .coupon-saving-amt { color: #2e7d32 !important; }
+
+    /* ── Flash messages ─────────────────────────────────────────────────────── */
+    .cart-msg {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 18px;
+        border-radius: 7px;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        animation: fadeInDown .35s ease;
+    }
+    .cart-msg-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #43a047; }
+    .cart-msg-error   { background: #fdecea; color: #c62828; border-left: 4px solid #e53935; }
+    .cart-msg-close { background: none; border: none; cursor: pointer; font-size: 18px; color: inherit; opacity:.7; }
+    .cart-msg-close:hover { opacity: 1; }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+{% include "footer.html" %}

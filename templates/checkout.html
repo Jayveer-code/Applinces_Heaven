@@ -1,0 +1,278 @@
+{% include "header.html" %}
+
+{% load cart_tag %}
+
+    <form method="post" action="/placeorder/ " >
+        {% csrf_token %}
+        <!-- checkout area start -->
+        <div class="checkout-area pt-100px pb-100px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="billing-info-wrap p-4 bg-white shadow-sm" style="border-radius: 16px; border: 1px solid #eee;">
+                            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 25px; color: #333; display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #eff6ff; color: #2563eb; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">📍</span>
+                                Billing Details
+                            </h3>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-user me-2" style="color: #64748b;"></i>First Name</label>
+                                        <input type="text" name="firstname" id="firstname" value="{{request.user.first_name}}" placeholder="First Name" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-user me-2" style="color: #64748b;"></i>Last Name</label>
+                                        <input type="text" value="{{request.user.last_name}}" name="lastname" id="lastname" placeholder="Last Name" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-calendar me-2" style="color: #64748b;"></i>Date of Birth</label>
+                                        <input type="date" id="dob" name="dob" min="1906-01-01" max="2004-12-31" name="dob" itemid="dob" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-envelope me-2" style="color: #64748b;"></i>Email Address</label>
+                                        <input type="text" value="{{request.user.email}}" name="email" id="email" placeholder="Email" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-map-marker me-2" style="color: #64748b;"></i>Street Address</label>
+                                        <textarea name="address" id="address" placeholder="House number and street name">{{profile.address}}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-map me-2" style="color: #64748b;"></i>Town / City</label>
+                                        <input type="text" name="city" id="city" placeholder="e.g. Ahmedabad" required />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-flag me-2" style="color: #64748b;"></i>State</label>
+                                        <select name="state" id="state" required>
+                                            <option value="" disabled selected>Select State</option>
+                                            <option>Andaman and Nicobar Islands</option>
+                                            <option>Andhra Pradesh</option>
+                                            <option>Arunachal Pradesh</option>
+                                            <option>Assam</option>
+                                            <option>Bihar</option>
+                                            <option>Chandigarh</option>
+                                            <option>Chhattisgarh</option>
+                                            <option>Dadra and Nagar Haveli and Daman and Diu</option>
+                                            <option>Delhi</option>
+                                            <option>Goa</option>
+                                            <option>Gujarat</option>
+                                            <option>Haryana</option>
+                                            <option>Himachal Pradesh</option>
+                                            <option>Jammu and Kashmir</option>
+                                            <option>Jharkhand</option>
+                                            <option>Karnataka</option>
+                                            <option>Kerala</option>
+                                            <option>Ladakh</option>
+                                            <option>Lakshadweep</option>
+                                            <option>Madhya Pradesh</option>
+                                            <option>Maharashtra</option>
+                                            <option>Manipur</option>
+                                            <option>Meghalaya</option>
+                                            <option>Mizoram</option>
+                                            <option>Nagaland</option>
+                                            <option>Odisha</option>
+                                            <option>Puducherry</option>
+                                            <option>Punjab</option>
+                                            <option>Rajasthan</option>
+                                            <option>Sikkim</option>
+                                            <option>Tamil Nadu</option>
+                                            <option>Telangana</option>
+                                            <option>Tripura</option>
+                                            <option>Uttar Pradesh</option>
+                                            <option>Uttarakhand</option>
+                                            <option>West Bengal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-location-arrow me-2" style="color: #64748b;"></i>PinCode</label>
+                                        <input type="text" name="pincode" id="pincode" placeholder="PinCode" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 mb-4">
+                                    <div class="billing-info-custom">
+                                        <label><i class="fa fa-phone me-2" style="color: #64748b;"></i>Phone Number</label>
+                                        <div class="phone-input-group">
+                                            <span class="country-code">+91</span>
+                                            <input type="tel" value="{% if profile.contact != 0 %}{{profile.contact}}{% endif %}" name="phone" id="phone" placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                                        </div>
+                                        <small style="color: #94a3b8; font-size: 11px; margin-top: 5px; display: block;">* Enter 10-digit mobile number</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+<style>
+    .billing-info-custom { margin-bottom: 5px; }
+    .billing-info-custom label { 
+        display: block; font-size: 14px; font-weight: 600; color: #475569; 
+        margin-bottom: 8px; font-family: 'Inter', sans-serif;
+    }
+    .billing-info-custom input, .billing-info-custom select, .billing-info-custom textarea {
+        width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; 
+        border-radius: 10px; font-size: 14px; color: #1e293b;
+        background-color: #f8fafc; transition: all 0.2s ease; outline: none;
+    }
+    .billing-info-custom input:focus, .billing-info-custom select:focus, .billing-info-custom textarea:focus {
+        border-color: #2563eb; background-color: #fff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+    .billing-info-custom textarea { height: 80px; resize: none; }
+
+    .phone-input-group { 
+        display: flex; align-items: stretch; border: 1.5px solid #e2e8f0; 
+        border-radius: 10px; overflow: hidden; background: #f8fafc;
+    }
+    .phone-input-group .country-code {
+        padding: 12px 14px; background: #f1f5f9; color: #475569; 
+        font-weight: 600; font-size: 14px; border-right: 1.5px solid #e2e8f0;
+        display: flex; align-items: center;
+    }
+    .phone-input-group input { 
+        border: none !important; border-radius: 0 !important; 
+        background: transparent !important; box-shadow: none !important;
+    }
+    .phone-input-group:focus-within {
+        border-color: #2563eb; background: #fff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+</style>
+                    <div class="col-lg-5 mt-md-30px mt-lm-30px ">
+                        <div class="your-order-area">
+                            <h3>Your order</h3>
+                            <div class="your-order-wrap gray-bg-4">
+                                <div class="your-order-product-info">
+                                    <div class="your-order-top">
+                                        <ul>
+                                            <li>Product</li>
+                                            <li>Total</li>
+                                        </ul>
+                                    </div>
+                                    <div class="your-order-middle">
+                                        {% for key, value in request.session.cart.items %}
+                                        <ul>
+                                            <li><span class="order-middle-left">{{value.name| truncatewords:5}} X {{value.quantity}}</span>
+                                                <span class="order-price">₹{{ value.price|multiply:value.quantity }} </span></li>
+                                        </ul>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="your-order-bottom">
+                                        <ul>
+                                            <li class="your-order-shipping">Subtotal</li>
+                                            <li>₹{{ cart_subtotal }}</li>
+                                        </ul>
+                                        {% if coupon_discount and coupon_discount > 0 %}
+                                        <ul style="color:#2e7d32;">
+                                            <li class="your-order-shipping">Coupon ({{ coupon_code }})</li>
+                                            <li>- ₹{{ coupon_discount }}</li>
+                                        </ul>
+                                        {% endif %}
+                                        <ul>
+                                            <li class="your-order-shipping">GST (18%)</li>
+                                            <li>₹{{ gst_amount|floatformat:2 }}</li>
+                                        </ul>
+                                        <ul>
+                                            <li class="your-order-shipping">Delivery</li>
+                                            <li>₹{{ delivery_charge|floatformat:2 }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="your-order-total">
+                                        <ul>
+                                            <li class="order-total">Grand Total</li>
+                                            <li><strong style="color:#B12704;">₹{{ final_total|floatformat:2 }}</strong></li>
+                                        </ul>
+                                        <!-- Hidden input carries the correct amount to placeorder view -->
+                                        <input type="hidden" name="amount" value="{{ final_total|floatformat:2 }}">
+                                    </div>
+                                </div>
+                                <div class="payment-method">
+                                    <h3 class="pm-title">Payment Method</h3>
+                                    <div class="payment-options">
+                                        <label class="payment-card" for="py1">
+                                            <input type="radio" name="payment" id="py1" value="Online Payment" required checked>
+                                            <div class="card-content">
+                                                <span class="pm-icon">💳</span>
+                                                <div class="pm-text">
+                                                    <strong>Online Payment</strong>
+                                                    <small>Pay securely via UPI, Card, or Netbanking</small>
+                                                </div>
+                                                <span class="checked-icon">✓</span>
+                                            </div>
+                                        </label>
+
+                                        <label class="payment-card" for="py2">
+                                            <input type="radio" name="payment" id="py2" value=" Cash On Delivery">
+                                            <div class="card-content">
+                                                <span class="pm-icon">🚚</span>
+                                                <div class="pm-text">
+                                                    <strong>Cash On Delivery</strong>
+                                                    <small>Pay when your order arrives</small>
+                                                </div>
+                                                <span class="checked-icon">✓</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+<style>
+    .pm-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .payment-options { display: flex; flex-direction: column; gap: 12px; }
+    .payment-card { cursor: pointer; display: block; margin: 0; }
+    .payment-card input { display: none; }
+    
+    .card-content {
+        display: flex; align-items: center; gap: 15px; padding: 16px; 
+        background: #fff; border: 2px solid #eee; border-radius: 12px;
+        transition: all 0.25s ease; position: relative;
+    }
+    
+    .pm-icon { font-size: 24px; }
+    .pm-text { flex: 1; }
+    .pm-text strong { display: block; font-size: 15px; color: #333; }
+    .pm-text small { color: #888; font-size: 12px; }
+    
+    .checked-icon { 
+        width: 22px; height: 22px; background: #2563eb; color: #fff; 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: bold; opacity: 0; transform: scale(0.5); transition: all 0.2s;
+    }
+
+    .payment-card:hover .card-content { border-color: #cbd5e1; background: #f8fafc; }
+    
+    .payment-card input:checked + .card-content {
+        border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 12px rgba(37,99,235,0.1);
+    }
+    
+    .payment-card input:checked + .card-content .checked-icon {
+        opacity: 1; transform: scale(1);
+    }
+    
+    .payment-card input:checked + .card-content strong { color: #2563eb; }
+</style>
+                            </div>
+                            <div class="Place-order mt-25">
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Place Order</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+        <!-- checkout area end -->
+        {% include "footer.html" %}

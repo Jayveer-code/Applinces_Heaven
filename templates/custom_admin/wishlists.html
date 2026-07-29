@@ -1,0 +1,86 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Wishlists{% endblock %}
+{% block page_title %}Wishlists{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Wishlists</span>
+</div>
+
+<div class="page-header">
+  <h1>User Wishlists</h1>
+</div>
+
+<form method="GET" action="{% url 'admin_wishlists' %}">
+  <div class="filter-bar">
+    <div class="search-box" style="flex:1;">
+      <i class="fas fa-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by username or product name…"/>
+    </div>
+    <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-search"></i> Search</button>
+    {% if query %}<a href="{% url 'admin_wishlists' %}" class="btn-ah btn-ah-outline"><i class="fas fa-xmark"></i> Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="ah-card">
+  <div class="ah-card-header">
+    <i class="fas fa-heart" style="color:#ef4444;"></i>
+    <h2>All Wishlist Items <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ wishlists|length }})</span></h2>
+  </div>
+  <div class="ah-table-wrap">
+    <table class="ah-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Product</th>
+          <th>Product Image</th>
+          <th>Price</th>
+          <th>Added On</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in wishlists %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ item.id }}</td>
+          <td>
+            <div style="font-weight:600;font-size:13px;">{{ item.user.get_full_name|default:item.user.username }}</div>
+            <div style="font-size:11px;color:var(--text-muted);">@{{ item.user.username }}</div>
+          </td>
+          <td>
+            <a href="{% url 'admin_product_edit' item.product.id %}" style="color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;">
+              {{ item.product.name|truncatechars:30 }}
+            </a>
+          </td>
+          <td>
+            {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" class="prod-thumb" alt="{{ item.product.name }}">
+            {% else %}
+            <div style="width:44px;height:44px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fas fa-image"></i></div>
+            {% endif %}
+          </td>
+          <td><strong>₹{{ item.product.price }}</strong></td>
+          <td style="font-size:12px;color:var(--text-muted);">{{ item.created_at|date:"d M Y" }}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button onclick="confirmDelete('{% url 'admin_wishlist_delete' item.id %}','Remove this wishlist item?')"
+                class="btn-icon btn-icon-delete" title="Remove"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fas fa-heart" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3;"></i>
+            No wishlist items found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Products</span>
+</div>
+
+<div class="page-header">
+  <h1>Products</h1>
+  <div style="display:flex;gap:10px;">
+    <a href="{% url 'admin_product_bulk_upload' %}" class="btn-ah btn-ah-outline"><i class="fas fa-file-import"></i> Bulk Upload</a>
+    <a href="{% url 'admin_product_add' %}" class="btn-ah btn-ah-primary"><i class="fas fa-plus"></i> Add Product</a>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<form method="GET" action="{% url 'admin_products' %}">
+  <div class="filter-bar">
+    <div class="search-box" style="flex:2;">
+      <i class="fas fa-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search product name…"/>
+    </div>
+    <select name="category" class="ah-select" style="width:180px;">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+      <option value="{{ cat.id }}" {% if category_filter == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-filter"></i> Filter</button>
+    {% if query or category_filter %}
+    <a href="{% url 'admin_products' %}" class="btn-ah btn-ah-outline"><i class="fas fa-xmark"></i> Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="ah-card">
+  <div class="ah-card-header">
+    <i class="fas fa-box-open" style="color:var(--accent);"></i>
+    <h2>All Products <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ products|length }} items)</span></h2>
+  </div>
+  <div class="ah-table-wrap">
+    <table class="ah-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Discount</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Deal of Day</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prod in products %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">#{{ prod.id }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              {% if prod.image %}
+              <img src="{{ prod.image.url }}" class="prod-thumb" alt="{{ prod.name }}">
+              {% elif prod.images_set.all %}
+              <img src="{{ prod.images_set.first.image.url }}" class="prod-thumb" alt="{{ prod.name }}">
+              {% else %}
+              <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;"><i class="fas fa-image"></i></div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600;font-size:13.5px;">{{ prod.name|truncatechars:30 }}</div>
+                <div style="font-size:11.5px;color:var(--text-muted);">{{ prod.subcategories.name }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-size:12.5px;">{{ prod.categories.name }}</span></td>
+          <td><strong>₹{{ prod.price }}</strong></td>
+          <td>
+            {% if prod.discount_percentage > 0 %}
+            <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;">{{ prod.discount_percentage }}% OFF</span>
+            {% else %}
+            <span style="color:var(--text-muted);font-size:12px;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if prod.stock == 0 %}
+            <span style="color:#ef4444;font-weight:700;font-size:12.5px;"><i class="fas fa-exclamation-triangle"></i> Out</span>
+            {% elif prod.stock <= 5 %}
+            <span style="color:#f59e0b;font-weight:700;font-size:12.5px;"><i class="fas fa-exclamation-circle"></i> {{ prod.stock }} Low</span>
+            {% else %}
+            <span style="color:#10b981;font-weight:600;font-size:12.5px;">{{ prod.stock }}</span>
+            {% endif %}
+          </td>
+          <td><span class="badge-status badge-{{ prod.status|lower }}">{{ prod.status }}</span></td>
+          <td>
+            {% if prod.is_deal_of_day %}
+            <span style="color:#f59e0b;font-size:14px;" title="Deal of the Day"><i class="fas fa-fire"></i></span>
+            {% else %}
+            <span style="color:#e2e8f0;font-size:14px;"><i class="fas fa-fire"></i></span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <a href="{% url 'admin_product_images' prod.id %}" class="btn-icon btn-icon-view" title="Manage Images"><i class="fas fa-images"></i></a>
+              <a href="{% url 'admin_product_edit' prod.id %}" class="btn-icon btn-icon-edit" title="Edit"><i class="fas fa-pen"></i></a>
+              <button onclick="confirmDelete('{% url 'admin_product_delete' prod.id %}','Delete product &quot;{{ prod.name }}&quot;?')" class="btn-icon btn-icon-delete" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fas fa-box-open" style="font-size:36px;margin-bottom:10px;display:block;opacity:.3;"></i>
+            No products found. <a href="{% url 'admin_product_add' %}" style="color:var(--accent);">Add one?</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

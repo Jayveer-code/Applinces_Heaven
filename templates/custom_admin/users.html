@@ -1,0 +1,96 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Users</span>
+</div>
+
+<div class="page-header">
+  <h1>Users</h1>
+</div>
+
+<form method="GET" action="{% url 'admin_users' %}">
+  <div class="filter-bar">
+    <div class="search-box" style="flex:1;">
+      <i class="fas fa-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by username, email or first name…"/>
+    </div>
+    <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-search"></i> Search</button>
+    {% if query %}<a href="{% url 'admin_users' %}" class="btn-ah btn-ah-outline"><i class="fas fa-xmark"></i> Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="ah-card">
+  <div class="ah-card-header">
+    <i class="fas fa-users" style="color:var(--accent);"></i>
+    <h2>All Users <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ users|length }})</span></h2>
+  </div>
+  <div class="ah-table-wrap">
+    <table class="ah-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Email</th>
+          <th>Joined</th>
+          <th>Orders</th>
+          <th>Status</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ u.id }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;">{{ u.username|slice:":1"|upper }}</div>
+              <div>
+                <div style="font-weight:600;font-size:13.5px;">{{ u.get_full_name|default:u.username }}</div>
+                <div style="font-size:11.5px;color:var(--text-muted);">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-size:13px;">{{ u.email }}</td>
+          <td style="font-size:12px;color:var(--text-muted);">{{ u.date_joined|date:"d M Y" }}</td>
+          <td>
+            <span style="background:#eff6ff;color:var(--accent);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;">
+              {{ u.order_set.count }}
+            </span>
+          </td>
+          <td>
+            {% if u.is_active %}
+            <span class="badge-status badge-active">Active</span>
+            {% else %}
+            <span class="badge-status badge-inactive">Blocked</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <a href="{% url 'admin_user_detail' u.id %}" class="btn-icon btn-icon-view" title="View Activity"><i class="fas fa-eye"></i></a>
+              <form method="POST" action="{% url 'admin_user_toggle' u.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-icon {% if u.is_active %}btn-icon-delete{% else %}btn-icon-edit{% endif %}" title="{% if u.is_active %}Block User{% else %}Unblock User{% endif %}">
+                  <i class="fas fa-{% if u.is_active %}ban{% else %}check{% endif %}"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fas fa-users" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3;"></i>
+            No users found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

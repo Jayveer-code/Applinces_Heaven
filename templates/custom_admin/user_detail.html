@@ -1,0 +1,123 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}User - {{ viewed_user.username }}{% endblock %}
+{% block page_title %}User Details{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <a href="{% url 'admin_users' %}">Users</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">{{ viewed_user.username }}</span>
+</div>
+
+<div class="page-header">
+  <h1>User Profile</h1>
+  <a href="{% url 'admin_users' %}" class="btn-ah btn-ah-outline"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="row g-3">
+  <!-- User Card -->
+  <div class="col-lg-4">
+    <div class="ah-card mb-3">
+      <div class="ah-card-body" style="text-align:center;padding:32px;">
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin:0 auto 16px;">
+          {{ viewed_user.username|slice:":1"|upper }}
+        </div>
+        <div style="font-size:18px;font-weight:700;">{{ viewed_user.get_full_name|default:viewed_user.username }}</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:4px;">@{{ viewed_user.username }}</div>
+        <div style="margin-top:12px;">
+          {% if viewed_user.is_active %}
+          <span class="badge-status badge-active" style="font-size:13px;padding:5px 14px;">Active</span>
+          {% else %}
+          <span class="badge-status badge-inactive" style="font-size:13px;padding:5px 14px;">Blocked</span>
+          {% endif %}
+        </div>
+        <hr style="border-color:var(--border);margin:20px 0;">
+        <div style="display:grid;gap:10px;text-align:left;font-size:13.5px;">
+          <div><i class="fas fa-envelope" style="color:var(--text-muted);width:18px;"></i> {{ viewed_user.email }}</div>
+          <div><i class="fas fa-calendar" style="color:var(--text-muted);width:18px;"></i> Joined {{ viewed_user.date_joined|date:"d M Y" }}</div>
+          {% if profile %}
+          <div><i class="fas fa-phone" style="color:var(--text-muted);width:18px;"></i> {{ profile.contact }}</div>
+          <div><i class="fas fa-venus-mars" style="color:var(--text-muted);width:18px;"></i> {{ profile.gender }}</div>
+          <div style="vertical-align:top;"><i class="fas fa-location-dot" style="color:var(--text-muted);width:18px;"></i> {{ profile.address }}</div>
+          {% endif %}
+        </div>
+        <hr style="border-color:var(--border);margin:20px 0;">
+        <form method="POST" action="{% url 'admin_user_toggle' viewed_user.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-ah {% if viewed_user.is_active %}btn-ah-danger{% else %}btn-ah-success{% endif %}" style="width:100%;">
+            <i class="fas fa-{% if viewed_user.is_active %}ban{% else %}check{% endif %}"></i>
+            {% if viewed_user.is_active %}Block User{% else %}Unblock User{% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="ah-card">
+      <div class="ah-card-header"><i class="fas fa-chart-simple" style="color:var(--warning);"></i><h2>Activity Stats</h2></div>
+      <div class="ah-card-body">
+        <div style="display:grid;gap:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--text-muted);">Total Orders</span>
+            <strong style="font-size:15px;">{{ orders|length }}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--text-muted);">Delivered</span>
+            <strong style="font-size:15px;color:var(--success);">
+              {% with d=orders|length %}{{ orders|dictsort:"status"|length }}{% endwith %}
+              {% for o in orders %}{% if o.status == 'delivered' %}{% endif %}{% endfor %}
+              {{ orders|length }}
+            </strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--text-muted);">Total Spent</span>
+            <strong style="font-size:15px;color:var(--accent);">
+              ₹{% widthratio orders|length 1 1 %}
+              {% for o in orders %}{% endfor %}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order History -->
+  <div class="col-lg-8">
+    <div class="ah-card">
+      <div class="ah-card-header">
+        <i class="fas fa-bag-shopping" style="color:var(--accent);"></i>
+        <h2>Order History</h2>
+      </div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr><th>Order ID</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td><strong>#{{ order.id }}</strong></td>
+              <td><strong>₹{{ order.amount }}</strong></td>
+              <td>
+                {% if order.paid %}
+                <span style="background:#dcfce7;color:#166534;border-radius:6px;padding:3px 8px;font-size:12px;">Paid</span>
+                {% else %}
+                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:3px 8px;font-size:12px;">COD</span>
+                {% endif %}
+              </td>
+              <td><span class="badge-status badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+              <td style="font-size:12px;color:var(--text-muted);">{{ order.orderdate }}</td>
+              <td><a href="{% url 'admin_order_detail' order.id %}" class="btn-icon btn-icon-view"><i class="fas fa-eye"></i></a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted);">No orders yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Bulk Product Upload{% endblock %}
+{% block page_title %}Bulk Product Upload{% endblock %}
+
+{% block content %}
+<div class="card-ah">
+    <div class="card-ah-header">
+        <h2 class="card-ah-title"><i class="fas fa-file-import me-2"></i>Bulk Product Upload</h2>
+        <a href="{% url 'admin_products' %}" class="btn-ah btn-ah-outline">
+            <i class="fas fa-arrow-left me-1"></i> Back to Products
+        </a>
+    </div>
+    
+    <div class="card-ah-body">
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle me-1"></i> Instructions:</h5>
+            <p>Upload a CSV file with the following columns in order:</p>
+            <ol>
+                <li><strong>Name</strong>: Product name</li>
+                <li><strong>Price</strong>: numeric price (e.g. 19999.00)</li>
+                <li><strong>Description</strong>: Text description</li>
+                <li><strong>Category</strong>: Name of the category</li>
+                <li><strong>Subcategory</strong>: Name of the subcategory</li>
+                <li><strong>Price Filter</strong>: Price range (e.g. "10000 to 20000")</li>
+                <li><strong>Discount %</strong>: numeric (0-100)</li>
+                <li><strong>Deal of the Day</strong>: "on" or "off"</li>
+                <li><strong>Status</strong>: "PUBLISH" or "DRAFT"</li>
+            </ol>
+            <p class="mb-0"><strong>Note:</strong> Categories, Subcategories, and Price Filters will be created if they don't exist.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="mt-4">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="csv_file" class="form-label fw-bold">Select CSV File</label>
+                <input type="file" name="csv_file" id="csv_file" class="form-control" accept=".csv" required>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-ah">
+                    <i class="fas fa-upload me-1"></i> Start Upload
+                </a>
+                <a href="{% static 'assets/samples/product_upload_sample.csv' %}" class="btn-ah btn-ah-outline" download>
+                    <i class="fas fa-download me-1"></i> Download Sample CSV
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

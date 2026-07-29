@@ -1,0 +1,104 @@
+{% extends 'custom_admin/base.html' %}
+{% block title %}Reviews{% endblock %}
+{% block page_title %}Reviews{% endblock %}
+
+{% block content %}
+<div class="ah-breadcrumb">
+  <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+  <span class="sep"><i class="fas fa-chevron-right"></i></span>
+  <span class="current">Reviews</span>
+</div>
+
+<div class="page-header">
+  <h1>Product Reviews</h1>
+</div>
+
+<!-- FILTER BAR -->
+<form method="GET" action="{% url 'admin_reviews' %}">
+  <div class="filter-bar">
+    <div class="search-box" style="flex:2;">
+      <i class="fas fa-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by user, product or comment…"/>
+    </div>
+    <select name="rating" class="ah-select" style="width:160px;">
+      <option value="">All Ratings</option>
+      {% for i in "54321" %}
+      <option value="{{ i }}" {% if rating_f == i %}selected{% endif %}>{{ i }} ⭐ Stars</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-ah btn-ah-primary"><i class="fas fa-filter"></i> Filter</button>
+    {% if query or rating_f %}<a href="{% url 'admin_reviews' %}" class="btn-ah btn-ah-outline"><i class="fas fa-xmark"></i> Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="ah-card">
+  <div class="ah-card-header">
+    <i class="fas fa-star" style="color:#f59e0b;"></i>
+    <h2>All Reviews <span style="color:var(--text-muted);font-weight:400;font-size:13px;">({{ reviews|length }})</span></h2>
+  </div>
+  <div class="ah-table-wrap">
+    <table class="ah-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Product</th>
+          <th>Rating</th>
+          <th>Comment</th>
+          <th>Image</th>
+          <th>Date</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ review.id }}</td>
+          <td>
+            <div style="font-weight:600;font-size:13px;">{{ review.user.get_full_name|default:review.user.username }}</div>
+            <div style="font-size:11px;color:var(--text-muted);">@{{ review.user.username }}</div>
+          </td>
+          <td>
+            <a href="{% url 'admin_product_edit' review.product.id %}" style="color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;">{{ review.product.name|truncatechars:25 }}</a>
+          </td>
+          <td>
+            <div style="display:flex;gap:2px;">
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                  <i class="fas fa-star" style="color:#f59e0b;font-size:13px;"></i>
+                {% else %}
+                  <i class="fas fa-star" style="color:#e2e8f0;font-size:13px;"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">{{ review.rating }}/5</div>
+          </td>
+          <td style="max-width:220px;font-size:13px;">{{ review.comment|truncatechars:60 }}</td>
+          <td>
+            {% if review.image %}
+              <img src="{{ review.image.url }}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" alt="Review">
+            {% else %}
+              <span style="color:var(--text-muted);font-size:12px;">—</span>
+            {% endif %}
+          </td>
+          <td style="font-size:12px;color:var(--text-muted);">{{ review.created_at|date:"d M Y" }}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button onclick="confirmDelete('{% url 'admin_review_delete' review.id %}','Delete this review by {{ review.user.username }}?')"
+                class="btn-icon btn-icon-delete" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fas fa-star" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3;"></i>
+            No reviews found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

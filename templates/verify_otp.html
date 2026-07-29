@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zxx" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP – Appliances Heaven</title>
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="OTP verification for Appliances Heaven account login.">
+
+    <link rel="shortcut icon" type="image/x-icon" href="/static/assets/images/1.PNG" />
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/assets/css/font.awesome.css" />
+    <link rel="stylesheet" href="/static/assets/css/pe-icon-7-stroke.css" />
+    <link rel="stylesheet" href="/static/assets/css/animate.min.css">
+    <link rel="stylesheet" href="/static/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/static/assets/css/venobox.css">
+    <link rel="stylesheet" href="/static/assets/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+    <link rel="stylesheet" href="/static/assets/css/plugins.min.css">
+    <link rel="stylesheet" href="/static/assets/css/style.min.css">
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <div class="login-register-area pt-100px pb-100px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-12 ml-auto mr-auto">
+                        <div class="login-register-wrapper">
+                            <h4 style="text-align: center;">Verify OTP</h4>
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form method="POST" id="otp-form">
+                                        {% csrf_token %}
+                                        <div class="otp-container" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                            <input type="text" class="otp-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; border-radius: 5px; border: 1px solid #ccc; padding: 0;" required>
+                                        </div>
+                                        <input type="hidden" name="otp" id="hidden-otp">
+                                        <div class="button-box" style="text-align: center;">
+                                            <button type="submit" style="width: 100%;"><span>Verify OTP</span></button>
+                                        </div>
+                                    </form>
+
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                            const inputs = document.querySelectorAll('.otp-input');
+                                            const hiddenOtp = document.getElementById('hidden-otp');
+                                            const form = document.getElementById('otp-form');
+
+                                            inputs.forEach((input, index) => {
+                                                input.addEventListener('keyup', (e) => {
+                                                    if (e.key >= '0' && e.key <= '9') {
+                                                        if (index < inputs.length - 1) {
+                                                            inputs[index + 1].focus();
+                                                        }
+                                                    } else if (e.key === 'Backspace') {
+                                                        if (index > 0 && input.value === '') {
+                                                            inputs[index - 1].focus();
+                                                        }
+                                                    }
+                                                });
+
+                                                input.addEventListener('input', () => {
+                                                    input.value = input.value.replace(/[^0-9]/g, '');
+                                                    if (input.value !== '' && index < inputs.length - 1) {
+                                                        inputs[index + 1].focus();
+                                                    }
+                                                });
+
+                                                input.addEventListener('paste', (e) => {
+                                                    e.preventDefault();
+                                                    const pastedData = e.clipboardData.getData('text').slice(0, 6).replace(/[^0-9]/g, '');
+                                                    for(let i = 0; i < pastedData.length; i++) {
+                                                        if(i + index < inputs.length) {
+                                                            inputs[i + index].value = pastedData[i];
+                                                            if(i + index < inputs.length - 1) {
+                                                                inputs[i + index + 1].focus();
+                                                            } else {
+                                                                inputs[i + index].focus();
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            });
+
+                                            form.addEventListener('submit', (e) => {
+                                                let otpValue = '';
+                                                inputs.forEach(input => {
+                                                    otpValue += input.value;
+                                                });
+                                                hiddenOtp.value = otpValue;
+                                                
+                                                if (otpValue.length !== 6) {
+                                                    e.preventDefault();
+                                                    alert('Please enter all 6 digits of the OTP.');
+                                                }
+                                            });
+                                        });
+                                    </script>
+                                    <div style="margin-top: 15px; text-align: center;">
+                                        <a href="{% url 'resend_otp' %}">Resend OTP</a>
+                                    </div>
+                                    {% if error %}
+                                    <p style="color:red; margin-top: 10px; text-align: center;">{{ error }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="/static/assets/js/vendor/jquery-migrate-3.3.2.min.js"></script>
+    <script src="/static/assets/js/vendor/modernizr-3.11.2.min.js"></script>
+    <script src="/static/assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="/static/assets/js/plugins/swiper-bundle.min.js"></script>
+    <script src="/static/assets/js/plugins/scrollUp.js"></script>
+    <script src="/static/assets/js/plugins/venobox.min.js"></script>
+    <script src="/static/assets/js/plugins/jquery-ui.min.js"></script>
+    <script src="/static/assets/js/plugins/mailchimp-ajax.js"></script>
+    <script src="/static/assets/js/vendor.min.js"></script>
+    <script src="/static/assets/js/plugins.min.js"></script>
+    <script src="/static/assets/js/main.min.js"></script>
+    <script src="/static/assets/js/main.js"></script>
+</body>
+
+</html>
