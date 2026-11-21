@@ -105,7 +105,7 @@
                                 <!-- Single Wedge End -->
                                 <a href="{% url 'cart_detail' %}" class="header-action-btn header-action-btn-cart ">
                                     <i class="pe-7s-shopbag"></i>
-                                    <span class="header-action-num">{{request.session.cart|length}}</span>
+                                    <span class="header-action-num">{{ cart_count }}</span>
                                     <!-- <span class="cart-amount">€30.00</span> -->
                                 </a>
                                 <a href="#offcanvas-mobile-menu"
@@ -146,7 +146,7 @@
                                 <!-- Single Wedge End -->
                                 <a href="{% url 'cart_detail' %}" class="header-action-btn header-action-btn-cart ">
                                     <i class="pe-7s-shopbag"></i>
-                                    <span class="header-action-num">{{request.session.cart|length}}</span>
+                                    <span class="header-action-num">{{ cart_count }}</span>
                                     <!-- <span class="cart-amount">€30.00</span> -->
                                 </a>
                                 <a href="#offcanvas-mobile-menu"

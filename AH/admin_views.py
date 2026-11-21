@@ -348,19 +348,32 @@ def admin_order_detail(request, pk):
     if request.method == 'POST':
         new_status = request.POST.get('status')
         delivery_date_str = request.POST.get('delivery_date')
-        
+        cancel_reason = (request.POST.get('cancel_reason') or '').strip()
+
+        if new_status == 'cancelled' and not cancel_reason:
+            messages.error(request, 'Cancellation reason is required when status is Cancelled.')
+            return redirect('admin_order_detail', pk=pk)
+
         if new_status:
             order.status = new_status
-        
+
+        if new_status == 'cancelled':
+            order.cancel_reason = cancel_reason
+            order.is_cancelled = True
+        else:
+            order.cancel_reason = None
+            order.is_cancelled = False
+
         if delivery_date_str:
             from datetime import datetime
             try:
-                # Convert string from input type="date" (YYYY-MM-DD) to a date object
                 order.delivery_date = datetime.strptime(delivery_date_str, '%Y-%m-%d').date()
             except ValueError:
-                # Fallback if format is weird, though browser date pickers are consistent
                 pass
-        
+        elif new_status == 'cancelled':
+            # Keep existing delivery_date if any; no forced clear
+            pass
+
         order.save()
         messages.success(request, f'Order #{order.id} status updated to {order.get_status_display()}.')
         return redirect('admin_order_detail', pk=pk)

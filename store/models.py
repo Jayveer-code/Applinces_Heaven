@@ -120,6 +120,7 @@ class Order(models.Model):
         ('shipped','Shipped'),
         ('out_for_delivery','Out For Delivery'),
         ('delivered','Delivered'),
+        ('cancelled','Cancelled'),
     ]
 
     user=models.ForeignKey(User,on_delete=models.CASCADE)
@@ -140,6 +141,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
     delivery_date = models.DateField(null=True,blank=True)
     is_cancelled = models.BooleanField(default=False)
+    cancel_reason = models.TextField(null=True, blank=True, help_text='Required when order is cancelled')
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -150,6 +152,13 @@ class Order(models.Model):
             old_order = Order.objects.get(pk=self.pk)
             old_status = old_order.status
             date_changed = old_order.delivery_date != self.delivery_date
+
+        # Keep cancelled flag in sync with status
+        if self.status == 'cancelled':
+            self.is_cancelled = True
+        elif old_status == 'cancelled' and self.status != 'cancelled':
+            self.is_cancelled = False
+            self.cancel_reason = None
             
         super().save(*args, **kwargs)
         
@@ -157,7 +166,7 @@ class Order(models.Model):
             OrderStatusHistory.objects.create(order=self, status=self.status)
             
             # Send Email notification for specific statuses
-            if self.status in ['confirmed', 'shipped', 'out_for_delivery', 'delivered'] and self.email:
+            if self.status in ['confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'] and self.email:
                 status_display = self.get_status_display()
                 subject = f"Update on Your Order #{self.id} - Appliances Heaven"
                 
@@ -173,8 +182,14 @@ class Order(models.Model):
                     message += "Your package has been successfully delivered. We hope you enjoy your purchase!\n\n"
                 elif self.status == 'confirmed':
                     message += "We are currently processing your order and will notify you once it has been shipped.\n\n"
+                elif self.status == 'cancelled':
+                    message += "We regret to inform you that your order has been cancelled.\n"
+                    if self.cancel_reason:
+                        message += f"Reason: {self.cancel_reason}\n\n"
+                    else:
+                        message += "\n"
                 
-                message += "You can track the live progress of your order by logging into your account and visiting the 'Track Order' section.\n\n"
+                message += "You can track the live progress of your order by logging into your account and visiting the 'Track Order' / Order History section.\n\n"
                 message += "If you have any questions or require further assistance, please do not hesitate to contact our support team.\n\n"
                 message += "Warm regards,\n"
                 message += "The Appliances Heaven Team"

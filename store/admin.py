@@ -54,9 +54,10 @@ class OrderStatusHistoryInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderitemTubleinline, OrderStatusHistoryInline]
-    list_display = ('id', 'user', 'status', 'orderdate', 'delivery_date', 'is_cancelled')
+    list_display = ('id', 'user', 'status', 'orderdate', 'delivery_date', 'is_cancelled', 'cancel_reason')
     list_editable = ('status', 'delivery_date', 'is_cancelled')
     search_fields = ['firstname', 'user__username', 'id']
+    list_filter = ('status', 'is_cancelled', 'payment_method')
 
 
 admin.site.register(images)

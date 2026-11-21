@@ -527,7 +527,7 @@
                                             </div>
                                             <div class="actions">
                                                 {% if prod.stock > 0 %}
-                                                <button title="Add To Cart" class="action add-to-cart" data-bs-toggle="modal" data-bs-target="#exampleModal-Cart-{{forloop.counter}}"><i class="pe-7s-shopbag"></i></button>
+                                                <a href="{% url 'cart_add' prod.id %}" title="Add To Cart" class="action add-to-cart"><i class="pe-7s-shopbag"></i></a>
                                                 {% endif %}
                                                 <button class="action quickview" data-link-action="quickview" title="Quick view" data-bs-toggle="modal" data-bs-target="#exampleModal-{{forloop.counter}}"><i class="pe-7s-look"></i></button>
                                             </div>

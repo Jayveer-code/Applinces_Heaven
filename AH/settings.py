@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'store',
-    'cart',
+    'cart.apps.CartConfig',
 ]
 
 
@@ -69,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'AH.context_processors.wishlist_count',
+                'AH.context_processors.cart_count',
                 'AH.context_processors.categories_processor',
             ],
         },

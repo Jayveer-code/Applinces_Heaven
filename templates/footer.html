@@ -9,9 +9,9 @@
                             <div class="col-md-6 col-lg-3 mb-md-30px mb-lm-30px">
                                 <div class="single-wedge">
                                     <div class="footer-logo">
-                                        <a href="index.html"><img src="/static/assets/images/logo/footer.png" alt=""></a>
+                                        <a href="{% url 'HomePage' %}"><img src="/static/assets/images/logo/footer.png" alt=""></a>
                                     </div>
-                                    <p class="about-text">Lorem ipsum dolor sit amet consl adipisi elit, sed do eiusmod templ incididunt ut labore
+                                    <p class="about-text">Appliances Heaven brings you trusted electronics and home appliances — from TVs and mobiles to kitchen essentials — with secure shopping and reliable delivery.
                                     </p>
                                     <ul class="link-follow">
                                         <li>
@@ -41,11 +41,10 @@
                                     <div class="footer-links">
                                         <div class="footer-row">
                                             <ul class="align-items-center">
-                                                <li class="li"><a class="single-link" href="my-account.html">My Account</a></li>
-                                                <li class="li"><a class="single-link" href="contact.html">Contact</a></li>
-                                                <li class="li"><a class="single-link" href="cart.html">Shopping cart</a></li>
-                                                <li class="li"><a class="single-link" href="shop-left-sidebar.html">Shop</a></li>
-                                                <li class="li"><a class="single-link" href="login.html">Services Login</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'profile' %}">My Account</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'ContactPage' %}">Contact</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'cart_detail' %}">Shopping cart</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'Productpage' %}">Shop</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -59,11 +58,10 @@
                                     <div class="footer-links">
                                         <div class="footer-row">
                                             <ul class="align-items-center">
-                                                <li class="li"><a class="single-link" href="my-account.html">My Account</a></li>
-                                                <li class="li"><a class="single-link" href="contact.html">Contact</a></li>
-                                                <li class="li"><a class="single-link" href="cart.html">Shopping cart</a></li>
-                                                <li class="li"><a class="single-link" href="shop-left-sidebar.html">Shop</a></li>
-                                                <li class="li"><a class="single-link" href="login.html">Services Login</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'profile' %}">My Account</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'update_password' %}">Change Password</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'orderhistory' %}">Order History</a></li>
+                                                <li class="li"><a class="single-link" href="{% url 'logout' %}">Logout</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -78,8 +76,8 @@
                                         <!-- News letter area -->
                                         <p class="address">Address: Your Address Goes Here.</p>
                                         <p class="phone">Phone/Fax:<a href="tel:0123456789"> 0123456789</a></p>
-                                        <p class="mail">Email:<a href="mailto:demo@example.com">appliancesheaven@gmail.com</a></p>
-                                        <p class="mail"><a href="https://demo@example.com/"> appliancesheaven@gmail.com</a></p>
+                                        <p class="mail">Email:<a href="mailto:appliancesheaven@gmail.com">appliancesheaven@gmail.com</a></p>
+                                        <p class="mail"><a href="mailto:appliancesheaven@gmail.com">appliancesheaven@gmail.com</a></p>
                                         <!-- News letter area  End -->
                                 
                                     </div>

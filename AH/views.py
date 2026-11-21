@@ -49,36 +49,40 @@ def CartPage(request):
     return render(request,'cart.html')
 
 
-def CheckoutPage(request):
-    user_id = request.user.id
-    # Use get_or_create to avoid DoesNotExist error if profile was not created during registration
-    profile, created = Profile.objects.get_or_create(
-        user_id=user_id,
-        defaults={'contact': 0, 'address': '', 'gender': 'Not Specified'}
-    )
-
-    # ── Compute discounted cart total ────────────────────────────
-    cart = request.session.get('cart', {})
+def _build_checkout_cart(request):
+    cart = request.session.get('cart') or {}
+    enriched_cart = []
     cart_subtotal = Decimal('0')
     for key, value in cart.items():
+        if not isinstance(value, dict):
+            continue
         try:
-            product = Product.objects.get(id=value['product_id'])
+            product = Product.objects.get(id=value.get('product_id') or key)
             unit_price = Decimal(str(product.get_discounted_price()))
         except Exception:
-            unit_price = Decimal(str(value.get('price', 0)))
-        cart_subtotal += unit_price * int(value.get('quantity', 1))
-
-    # ── Coupon discount ──────────────────────────────────────
-    coupon_discount = Decimal(str(request.session.get('coupon_discount', '0')))
+            unit_price = Decimal(str(value.get('price', 0) or 0))
+        qty = int(value.get('quantity', 1) or 1)
+        subtotal = unit_price * qty
+        cart_subtotal += subtotal
+        enriched_cart.append({
+            'key': key,
+            'product_id': value.get('product_id'),
+            'name': value.get('name'),
+            'image': value.get('image'),
+            'price': unit_price,
+            'quantity': qty,
+            'subtotal': subtotal,
+        })
+    coupon_discount = Decimal(str(request.session.get('coupon_discount', '0') or '0'))
     coupon_code = request.session.get('coupon_code', '')
-    
     amount_after_coupon = cart_subtotal - coupon_discount
+    if amount_after_coupon < 0:
+        amount_after_coupon = Decimal('0')
     gst_amount = amount_after_coupon * Decimal('0.18')
     delivery_charge = Decimal('80.00') if amount_after_coupon > 0 else Decimal('0.00')
     final_total = amount_after_coupon + gst_amount + delivery_charge
-
-    context = {
-        'profile': profile,
+    return {
+        'enriched_cart': enriched_cart,
         'cart_subtotal': cart_subtotal,
         'coupon_discount': coupon_discount,
         'coupon_code': coupon_code,
@@ -86,6 +90,17 @@ def CheckoutPage(request):
         'delivery_charge': delivery_charge,
         'final_total': final_total,
     }
+
+
+@login_required(login_url="/Login/")
+def CheckoutPage(request):
+    user_id = request.user.id
+    profile, created = Profile.objects.get_or_create(
+        user_id=user_id,
+        defaults={'contact': 0, 'address': '', 'gender': 'Not Specified'}
+    )
+    context = _build_checkout_cart(request)
+    context['profile'] = profile
     return render(request, 'checkout.html', context)
 
 def ContactPage(request):
@@ -114,70 +129,83 @@ def ForgotPage(request):
 def registration(request):
     return render(request,'registrations.html')
 
+@login_required(login_url="/Login/")
 def placeorder(request):
-    if request.method == "POST":
-        uid=request.user.id
-        myuser=User.objects.get(id=uid)
-        cart=request.session.get('cart')
-        myfirstname=request.POST.get('firstname')
-        mylastname =request.POST.get('lastname')
-        mydob=request.POST.get('dob')
-        mystate=request.POST.get('state')
-        myaddress=request.POST.get('address')
-        mycity=request.POST.get('city')
-        mypincode=request.POST.get('pincode')
-        myamount=request.POST.get('amount')   # comes from hidden input in checkout
-        myphone=request.POST.get('phone')
-        myemail=request.POST.get('email')
-        order_id=request.POST.get('order_id')
-        mypayment_method=request.POST.get('payment')
-        order=Order.objects.create(
-            user=myuser, firstname=myfirstname, lastname=mylastname,
-            orderdate=mydob, state=mystate, address=myaddress,
-            city=mycity, pincode=mypincode, amount=myamount,
-            phone=myphone, email=myemail,
-            payment_id=order_id, payment_method=mypayment_method
+    if request.method != "POST":
+        return redirect('ChekoutPage')
+
+    cart = request.session.get('cart') or {}
+    if not cart:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('cart_detail')
+
+    uid = request.user.id
+    myuser = User.objects.get(id=uid)
+    myfirstname = request.POST.get('firstname')
+    mylastname = request.POST.get('lastname')
+    mydob = request.POST.get('dob') or None
+    mystate = request.POST.get('state')
+    myaddress = request.POST.get('address')
+    mycity = request.POST.get('city')
+    mypincode = request.POST.get('pincode') or 0
+    myamount = request.POST.get('amount')
+    myphone = request.POST.get('phone') or 0
+    myemail = request.POST.get('email')
+    order_id = request.POST.get('order_id')
+    mypayment_method = (request.POST.get('payment') or '').strip()
+
+    order_kwargs = dict(
+        user=myuser, firstname=myfirstname, lastname=mylastname,
+        state=mystate, address=myaddress,
+        city=mycity, pincode=mypincode, amount=myamount,
+        phone=myphone, email=myemail,
+        payment_id=order_id, payment_method=mypayment_method
+    )
+    if mydob:
+        order_kwargs['orderdate'] = mydob
+    order = Order.objects.create(**order_kwargs)
+
+    for i in cart:
+        item_data = cart[i]
+        if not isinstance(item_data, dict):
+            continue
+        try:
+            product = Product.objects.get(id=item_data['product_id'])
+            qty_ordered = int(item_data['quantity'])
+            product.stock = max(0, product.stock - qty_ordered)
+            product.save()
+            unit_price = float(product.get_discounted_price())
+        except Exception:
+            unit_price = float(item_data.get('price', 0) or 0)
+            qty_ordered = int(item_data.get('quantity', 1) or 1)
+        total = unit_price * qty_ordered
+        Orderitem.objects.create(
+            order=order,
+            product=item_data.get('name', ''),
+            image=item_data.get('image', ''),
+            quantity=qty_ordered,
+            price=unit_price,
+            total=total,
         )
-        for i in cart:
-            try:
-                product = Product.objects.get(id=cart[i]['product_id'])
-                # Deduct stock
-                qty_ordered = int(cart[i]['quantity'])
-                product.stock = max(0, product.stock - qty_ordered)
-                product.save()
-                
-                unit_price = float(product.get_discounted_price())
-            except Exception:
-                unit_price = float(cart[i]['price'])
-            total = unit_price * int(cart[i]['quantity'])
-            item = Orderitem(
-                order=order,
-                product=cart[i]['name'],
-                image=cart[i]['image'],
-                quantity=cart[i]['quantity'],
-                price=unit_price,
-                total=total,
-            )
-            item.save()
 
-        # Increment coupon usage if coupon was applied
-        coupon_code = request.session.get('coupon_code', '')
-        if coupon_code:
-            try:
-                coupon = Coupon.objects.get(code=coupon_code.upper())
-                coupon.times_used += 1
-                coupon.save()
-            except Coupon.DoesNotExist:
-                pass
-            # Clear coupon from session
-            request.session.pop('coupon_code', None)
-            request.session.pop('coupon_discount', None)
+    coupon_code = request.session.get('coupon_code', '')
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(code=coupon_code.upper())
+            coupon.times_used += 1
+            coupon.save()
+        except Coupon.DoesNotExist:
+            pass
+        request.session.pop('coupon_code', None)
+        request.session.pop('coupon_discount', None)
 
-    if mypayment_method == ' Cash On Delivery':
+    # Order placed successfully — empty the cart so items don't remain
+    Cart(request).clear()
+
+    if mypayment_method == 'Cash On Delivery':
         return redirect('/thankyou/')
-    else:
-        return redirect('/payment_process/')
-	
+    return redirect('/payment_process/')
+
 def thankyou(request):
     return render(request,'thank-you-page.html')
 
@@ -457,16 +485,12 @@ def profile_address(request):
     context = {'profile':profile}
     return render(request,'profile_address.html',context)
 
+@login_required(login_url="/Login/")
 def orderhistory(request):
-    userid=request.user.id
-    order=Order.objects.filter(user_id=userid)
-    if not order:
-        messages.success(request, "You have no orders yet.")
-        return render(request,'orderhistory.html')
-    else:
-        message = ''
-        context = {'order':order}
-        return render(request,'orderhistory.html',context)
+    order = Order.objects.filter(user_id=request.user.id).order_by('-id')
+    if not order.exists():
+        messages.info(request, "You have no orders yet.")
+    return render(request, 'orderhistory.html', {'order': order})
 
 def orderview(request,id):
     orderitem  =Orderitem.objects.filter(order_id=id)
@@ -554,7 +578,10 @@ def success(request):
                 
     except Exception as e:
         print(f"CRITICAL ERROR in payment success: {str(e)}")
-        
+
+    # Clear cart after successful online payment as well
+    Cart(request).clear()
+
     return render(request, 'payment_success.html')
 
 def search(request):
@@ -594,17 +621,20 @@ def update_password(request):
    
 
 
+
 @login_required(login_url="/Login/")
 def cart_add(request, id):
     cart = Cart(request)
-    product = Product.objects.get(id=id)
-    cart.add(product=product)
-    return redirect("/")
+    product = get_object_or_404(Product, id=id)
+    cart.add(product=product, unit_price=product.get_discounted_price())
+    next_url = request.META.get('HTTP_REFERER') or '/'
+    return redirect(next_url)
+
 
 @login_required(login_url="/Login/")
 def item_clear(request, id):
     cart = Cart(request)
-    product = Product.objects.get(id=id)
+    product = get_object_or_404(Product, id=id)
     cart.remove(product)
     return redirect("cart_detail")
 
@@ -612,15 +642,15 @@ def item_clear(request, id):
 @login_required(login_url="/Login/")
 def item_increment(request, id):
     cart = Cart(request)
-    product = Product.objects.get(id=id)
-    cart.add(product=product)
+    product = get_object_or_404(Product, id=id)
+    cart.add(product=product, unit_price=product.get_discounted_price())
     return redirect("cart_detail")
 
 
 @login_required(login_url="/Login/")
 def item_decrement(request, id):
     cart = Cart(request)
-    product = Product.objects.get(id=id)
+    product = get_object_or_404(Product, id=id)
     cart.decrement(product=product)
     return redirect("cart_detail")
 
